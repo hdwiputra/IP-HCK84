@@ -234,7 +234,7 @@ export default function Home() {
                         : "No synopsis available."}
                     </p>
                     <div className="d-flex justify-content-end">
-                      <Link>
+                      <Link to={el.url} target="_blank" className="me-2">
                         <button className="btn btn-outline-primary btn-sm">
                           View Details
                         </button>
