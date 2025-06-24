@@ -4,6 +4,7 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require("express");
 const app = express();
+const { generateContent } = require("./helpers/gemini");
 const router = require("./routes");
 const errorHandler = require("./middlewares/errorHandler");
 const qs = require("qs");

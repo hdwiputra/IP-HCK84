@@ -12,7 +12,6 @@ module.exports = {
       UserId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true,
         references: {
           model: "Users",
           key: "id",
@@ -22,7 +21,6 @@ module.exports = {
       },
       GenreId: {
         type: Sequelize.INTEGER,
-        unique: true,
         allowNull: false,
         references: {
           model: "Genres",

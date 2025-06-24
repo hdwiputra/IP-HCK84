@@ -15,6 +15,7 @@ function errorHandler(error, req, res, next) {
       res.status(401).json({ message: "Invalid token" });
       break;
     case "BadRequest":
+    case "Bad Request":
       res.status(400).json({ message: error.message });
       break;
     case "Not Found":

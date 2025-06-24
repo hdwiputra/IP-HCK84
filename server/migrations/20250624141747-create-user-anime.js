@@ -30,10 +30,10 @@ module.exports = {
         onDelete: "cascade",
       },
       watch_status: {
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING,
       },
       score: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.INTEGER,
       },
       episodes_watched: {
         type: Sequelize.INTEGER,

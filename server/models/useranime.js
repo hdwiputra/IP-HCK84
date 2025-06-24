@@ -26,11 +26,12 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       watch_status: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
         allowNull: true,
+        defaultValue: "In Progress",
       },
       score: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.INTEGER,
         allowNull: true,
         validate: {
           isInt: { msg: "Score must be an integer" },
