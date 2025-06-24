@@ -48,6 +48,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      genre: {
+        type: DataTypes.ARRAY,
+        allowNull: true,
+      },
       synopsis: {
         type: DataTypes.TEXT,
         allowNull: true,

@@ -1,6 +1,7 @@
 "use strict";
 
 const axios = require("axios");
+const genre = require("../models/genre");
 
 // Simple delay function
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -33,6 +34,10 @@ module.exports = {
         title_japanese: el.title_japanese || null,
         image_url: el.images?.jpg?.image_url || null,
         trailer_url: el.trailer?.url || null,
+        genre:
+          el.genres && el.genres.length > 0
+            ? el.genres.map((g) => g.name)
+            : ["Unknown"],
         synopsis: el.synopsis || null,
         type: el.type || null,
         episodes: el.episodes || null,

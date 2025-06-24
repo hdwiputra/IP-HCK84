@@ -38,6 +38,10 @@ module.exports = {
       trailer_url: {
         type: Sequelize.STRING,
       },
+      genre: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        defaultValue: [],
+      },
       synopsis: {
         type: Sequelize.TEXT,
       },
