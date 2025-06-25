@@ -9,5 +9,6 @@ router.get("/", animeController.getMyAnimes);
 router.put("/:id", animeController.putMyAnimes);
 router.delete("/:id", animeController.deleteMyAnimes);
 router.post("/genres/:id", animeController.postMyGenres);
+router.get("/recommendation", animeController.getRecommendations);
 
 module.exports = router;

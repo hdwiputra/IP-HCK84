@@ -30,19 +30,32 @@ class UserController {
   static async login(req, res, next) {
     try {
       const { username, email, password } = req.body;
+      console.log(email, username, password, "<<<< email/username/password");
+
       if (!email && !username) {
         throw { name: "BadRequest", message: "Email or Username is required" };
       }
+      console.log(email, username, password, "<<<< email/username/password");
 
       if (!password) {
         throw { name: "BadRequest", message: "Password is required" };
       }
+      console.log(email, username, password, "<<<< email/username/password");
 
-      let data = await User.findOne({
-        where: {
-          [Op.or]: [{ email }, { username }],
-        },
-      });
+      let data;
+      if (username) {
+        data = await User.findOne({
+          where: {
+            username,
+          },
+        });
+      } else if (email) {
+        data = await User.findOne({
+          where: {
+            email,
+          },
+        });
+      }
 
       if (!data) {
         throw {

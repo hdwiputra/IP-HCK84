@@ -9,7 +9,7 @@
   "test": {
     "username": "postgres",
     "password": "postgres",
-    "database": "anitracker_test",
+    "database": "ip_hck84_test",
     "host": "localhost",
     "dialect": "postgres"
   },
