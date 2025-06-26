@@ -99,7 +99,7 @@ class PubController {
     try {
       const response = await axios({
         method: "GET",
-        url: "https://api.jikan.moe/v4/anime?status=airing&order_by=popularity&limit=24",
+        url: "https://api.jikan.moe/v4/anime?status=airing&order_by=popularity&start_date=2025-01-01&limit=24",
         family: 4, // Use IPv4
       });
       const data = response.data.data;

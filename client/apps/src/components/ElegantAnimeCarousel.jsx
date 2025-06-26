@@ -4,12 +4,27 @@ import { useState, useEffect } from "react";
 import "./ElegantAnimeCarousel.css";
 import { Link } from "react-router";
 
-const ElegantAnimeCarousel = ({ animeData = [] }) => {
+const ElegantAnimeCarousel = ({
+  animeData = [],
+  title = "Popular Airing Anime",
+}) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(6);
 
   // Calculate total pages
   const totalPages = Math.ceil(animeData.length / cardsPerView);
+
+  // Helper function to get year from aired_from if year is null
+  const getDisplayYear = (anime) => {
+    if (anime.year) return anime.year;
+    if (anime.original?.aired_from) {
+      return new Date(anime.original.aired_from).getFullYear();
+    }
+    if (anime.aired_from) {
+      return new Date(anime.aired_from).getFullYear();
+    }
+    return "Unknown";
+  };
 
   useEffect(() => {
     const updateCardsPerView = () => {
@@ -58,7 +73,7 @@ const ElegantAnimeCarousel = ({ animeData = [] }) => {
   return (
     <div className="elegant-anime-carousel">
       <div className="container">
-        <h2 className="carousel-title">Popular Airing Anime</h2>
+        <h2 className="carousel-title">{title}</h2>
 
         <div className="carousel-wrapper">
           {/* Navigation Arrows */}
@@ -91,7 +106,7 @@ const ElegantAnimeCarousel = ({ animeData = [] }) => {
           {/* Cards Container */}
           <div className="cards-container">
             {getCurrentPageCards().map((anime, index) => (
-              <div key={anime.id || index} className="elegant-card">
+              <div key={index} className="elegant-card">
                 <div className="card-image-wrapper">
                   <img
                     src={
@@ -140,7 +155,7 @@ const ElegantAnimeCarousel = ({ animeData = [] }) => {
                 <div className="card-info">
                   <h3 className="card-title">{anime.title}</h3>
                   <div className="card-meta">
-                    <span className="year">{anime.year}</span>
+                    <span className="year">{getDisplayYear(anime)}</span>
                     {anime.episodes && (
                       <span className="episodes">
                         {anime.episodes} episodes

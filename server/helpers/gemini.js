@@ -8,7 +8,7 @@ const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 async function generateContent(prompt) {
   try {
     // Get the generative model - using gemini-2.5-flash for free tier
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
 
     // Generate content
     const result = await model.generateContent(prompt);

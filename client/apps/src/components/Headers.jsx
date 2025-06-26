@@ -1,27 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for Bearer Token in localStorage
-    const token = localStorage.getItem("Bearer Token");
+    // Check for access_token in localStorage
+    const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("Bearer Token");
+    localStorage.removeItem("access_token");
     setIsLoggedIn(false);
-    // Add any additional logout logic here
+    navigate("/login");
   };
 
   const handleLogin = () => {
-    // Redirect to login page or open login modal
-    console.log("Redirect to login");
+    navigate("/login");
   };
 
   return (
@@ -30,7 +31,7 @@ const Header = () => {
         <div className="header-content">
           {/* Desktop Navigation - Left */}
           <nav className="desktop-nav d-none d-md-flex">
-            <a href="/watchlist" className="nav-link-custom">
+            <Link to={"/my-animes"} className="nav-link-custom">
               <svg
                 width="18"
                 height="18"
@@ -49,7 +50,7 @@ const Header = () => {
                 />
               </svg>
               My Watchlist
-            </a>
+            </Link>
           </nav>
 
           {/* Logo Section - Center */}
@@ -74,7 +75,7 @@ const Header = () => {
           </div>
 
           {/* Auth Section - Right */}
-          <div className="auth-section d-none d-md-flex">
+          <div className="auth-section">
             {isLoggedIn ? (
               <button
                 className="btn auth-btn logout-btn"

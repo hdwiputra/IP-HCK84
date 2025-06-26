@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import "./HeroSection.css";
+import { useNavigate } from "react-router";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Trigger fade-in animation on mount
@@ -22,6 +24,7 @@ const HeroSection = () => {
       nextSection.scrollIntoView({ behavior: "smooth" });
     } else {
       // Navigate to signup/login page
+      navigate("/register");
       console.log("Navigate to get started");
     }
   };

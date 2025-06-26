@@ -18,6 +18,9 @@ function errorHandler(error, req, res, next) {
     case "Bad Request":
       res.status(400).json({ message: error.message });
       break;
+    case "Forbidden":
+      res.status(403).json({ message: error.message });
+      break;
     case "Not Found":
       res.status(404).json({ message: error.message });
       break;
