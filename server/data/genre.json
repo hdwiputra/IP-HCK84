@@ -1,0 +1,102 @@
+[
+  {
+    "mal_id": 1,
+    "name": "Action",
+    "url": "https://myanimelist.net/anime/genre/1/Action"
+  },
+  {
+    "mal_id": 2,
+    "name": "Adventure",
+    "url": "https://myanimelist.net/anime/genre/2/Adventure"
+  },
+  {
+    "mal_id": 4,
+    "name": "Comedy",
+    "url": "https://myanimelist.net/anime/genre/4/Comedy"
+  },
+  {
+    "mal_id": 8,
+    "name": "Drama",
+    "url": "https://myanimelist.net/anime/genre/8/Drama"
+  },
+  {
+    "mal_id": 10,
+    "name": "Fantasy",
+    "url": "https://myanimelist.net/anime/genre/10/Fantasy"
+  },
+  {
+    "mal_id": 14,
+    "name": "Horror",
+    "url": "https://myanimelist.net/anime/genre/14/Horror"
+  },
+  {
+    "mal_id": 7,
+    "name": "Mystery",
+    "url": "https://myanimelist.net/anime/genre/7/Mystery"
+  },
+  {
+    "mal_id": 22,
+    "name": "Romance",
+    "url": "https://myanimelist.net/anime/genre/22/Romance"
+  },
+  {
+    "mal_id": 24,
+    "name": "Sci-Fi",
+    "url": "https://myanimelist.net/anime/genre/24/Sci-Fi"
+  },
+  {
+    "mal_id": 36,
+    "name": "Slice of Life",
+    "url": "https://myanimelist.net/anime/genre/36/Slice_of_Life"
+  },
+  {
+    "mal_id": 30,
+    "name": "Sports",
+    "url": "https://myanimelist.net/anime/genre/30/Sports"
+  },
+  {
+    "mal_id": 37,
+    "name": "Supernatural",
+    "url": "https://myanimelist.net/anime/genre/37/Supernatural"
+  },
+  {
+    "mal_id": 41,
+    "name": "Suspense",
+    "url": "https://myanimelist.net/anime/genre/41/Suspense"
+  },
+  {
+    "mal_id": 13,
+    "name": "Historical",
+    "url": "https://myanimelist.net/anime/genre/13/Historical"
+  },
+  {
+    "mal_id": 18,
+    "name": "Mecha",
+    "url": "https://myanimelist.net/anime/genre/18/Mecha"
+  },
+  {
+    "mal_id": 38,
+    "name": "Military",
+    "url": "https://myanimelist.net/anime/genre/38/Military"
+  },
+  {
+    "mal_id": 19,
+    "name": "Music",
+    "url": "https://myanimelist.net/anime/genre/19/Music"
+  },
+  {
+    "mal_id": 20,
+    "name": "Parody",
+    "url": "https://myanimelist.net/anime/genre/20/Parody"
+  },
+  {
+    "mal_id": 40,
+    "name": "Psychological",
+    "url": "https://myanimelist.net/anime/genre/40/Psychological"
+  },
+  {
+    "mal_id": 23,
+    "name": "School",
+    "url": "https://myanimelist.net/anime/genre/23/School"
+  }
+]

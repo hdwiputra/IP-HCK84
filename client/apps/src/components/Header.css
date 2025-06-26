@@ -1,0 +1,382 @@
+.anitrack-header {
+  background: linear-gradient(135deg, #0b1426 0%, #1a2332 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  min-height: 75px;
+  z-index: 1000;
+  animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 75px;
+  position: relative;
+  gap: 40px; /* Add gap between flex items */
+}
+
+/* Logo Section - Now centered */
+.logo-section {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 0 20px; /* Add padding around the logo */
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.logo-link:hover {
+  transform: translateY(-2px);
+}
+
+.logo-icon {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.logo-link:hover .logo-icon {
+  transform: rotate(10deg) scale(1.1);
+  filter: drop-shadow(0 0 8px rgba(255, 107, 157, 0.4));
+}
+
+.logo-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ff6b9d;
+  text-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+  transition: all 0.3s ease;
+  letter-spacing: -0.5px;
+}
+
+.logo-link:hover .logo-text {
+  color: #ffb7c5;
+  text-shadow: 0 0 25px rgba(255, 107, 157, 0.5);
+}
+
+/* Desktop Navigation - Now on the left */
+.desktop-nav {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  align-items: center;
+  order: 1;
+  margin-right: 60px; /* Add more space from the center logo */
+}
+
+.nav-link-custom {
+  display: flex;
+  align-items: center;
+  color: #fffafa;
+  text-decoration: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link-custom::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 183, 197, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.nav-link-custom:hover::before {
+  left: 100%;
+}
+
+.nav-link-custom:hover {
+  color: #ffb7c5;
+  background-color: rgba(255, 183, 197, 0.1);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.nav-icon {
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-link-custom:hover .nav-icon {
+  transform: scale(1.1);
+}
+
+/* Auth Section - Stays on the right */
+.auth-section {
+  flex-shrink: 0;
+  order: 3;
+  margin-left: 60px; /* Add more space from the center logo */
+}
+
+.auth-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 24px;
+  border-radius: 25px; /* Changed from 8px to 25px for oval shape */
+  border: none;
+  color: #fffafa;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.auth-btn:hover::before {
+  left: 100%;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #ff6b9d, #ffb7c5);
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, #ffb7c5, #ff6b9d);
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+  color: #fffafa;
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #b794f6, #9f7aea);
+  box-shadow: 0 4px 15px rgba(183, 148, 246, 0.3);
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #9f7aea, #b794f6);
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(183, 148, 246, 0.4);
+  color: #fffafa;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.hamburger {
+  width: 24px;
+  height: 18px;
+  position: relative;
+  transform: rotate(0deg);
+  transition: 0.3s ease-in-out;
+}
+
+.hamburger span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: #fffafa;
+  border-radius: 2px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: 0.3s ease-in-out;
+}
+
+.hamburger span:nth-child(1) {
+  top: 0px;
+}
+
+.hamburger span:nth-child(2) {
+  top: 7px;
+}
+
+.hamburger span:nth-child(3) {
+  top: 14px;
+}
+
+.hamburger.active span:nth-child(1) {
+  top: 7px;
+  transform: rotate(135deg);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.hamburger.active span:nth-child(3) {
+  top: 7px;
+  transform: rotate(-135deg);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #1a2332 0%, #0b1426 100%);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.mobile-menu.show {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-nav {
+  padding: 20px;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  color: #fffafa;
+  text-decoration: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-link:hover {
+  color: #ffb7c5;
+  text-decoration: none;
+  padding-left: 10px;
+}
+
+.mobile-nav-link .nav-icon {
+  margin-right: 12px;
+}
+
+.mobile-auth {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-btn.mobile {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logo-section {
+    position: static;
+    transform: none;
+    order: 2;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .logo-text {
+    font-size: 24px;
+  }
+
+  .header-container {
+    padding: 0 15px;
+  }
+
+  .header-content {
+    min-height: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text {
+    font-size: 20px;
+  }
+
+  .logo-icon {
+    margin-right: 8px;
+  }
+
+  .logo-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Smooth scrolling enhancement */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus states for accessibility */
+.logo-link:focus,
+.nav-link-custom:focus,
+.auth-btn:focus,
+.mobile-menu-toggle:focus {
+  outline: 2px solid #ffb7c5;
+  outline-offset: 2px;
+}

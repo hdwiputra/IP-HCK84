@@ -1,0 +1,609 @@
+.animeDetailsPage {
+  min-height: 100vh;
+  background: #0b1426;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.backgroundPattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      circle at 25% 25%,
+      rgba(255, 107, 157, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 75% 75%,
+      rgba(183, 148, 246, 0.08) 0%,
+      transparent 50%
+    );
+  background-size: 800px 800px, 600px 600px;
+  animation: backgroundFloat 20s ease-in-out infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes backgroundFloat {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(1deg);
+  }
+}
+
+.container {
+  position: relative;
+  z-index: 10;
+  max-width: 1400px;
+  padding: 40px 20px;
+}
+
+/* Breadcrumb Navigation */
+.breadcrumbNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.breadcrumbLink {
+  color: rgba(248, 248, 255, 0.7);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.breadcrumbLink:hover {
+  color: #ffb7c5;
+}
+
+.breadcrumbSeparator {
+  color: rgba(248, 248, 255, 0.5);
+}
+
+.breadcrumbCurrent {
+  color: #ff6b9d;
+  font-weight: 500;
+}
+
+/* Back Button */
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(26, 35, 50, 0.8);
+  border: 1px solid rgba(255, 107, 157, 0.3);
+  color: #fffafa;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.backButton:hover {
+  background: rgba(255, 107, 157, 0.1);
+  border-color: #ff6b9d;
+  transform: translateX(-4px);
+}
+
+/* Main Content */
+.animeContent {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.animeContent.fadeIn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Title Section */
+.titleSection {
+  margin-bottom: 40px;
+}
+
+.mainTitle {
+  color: #fffafa;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.japaneseTitle {
+  color: #f8f8ff;
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.scoreBadge {
+  background: #b794f6;
+  color: #fffafa;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(183, 148, 246, 0.3);
+}
+
+.star {
+  font-size: 12px;
+}
+
+.score {
+  font-size: 16px;
+}
+
+.scoreText {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.ratingBadge,
+.seasonBadge {
+  background: #1a2332;
+  color: rgba(248, 248, 255, 0.9);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.statusBadge {
+  background: #ff6b9d;
+  color: #fffafa;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+}
+
+/* Synopsis Section */
+.synopsisSection {
+  background: linear-gradient(135deg, #1a2332 0%, rgba(26, 35, 50, 0.8) 100%);
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 107, 157, 0.1);
+}
+
+.sectionTitle {
+  color: #fffafa;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionIcon {
+  color: #ff6b9d;
+}
+
+.synopsisContent {
+  position: relative;
+}
+
+.synopsisText {
+  color: #f8f8ff;
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: #ffb7c5;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.3s ease;
+}
+
+.expandButton:hover {
+  color: #ff6b9d;
+  text-decoration: underline;
+}
+
+/* Information Grid */
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.infoCard {
+  background: #1a2332;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 107, 157, 0.1);
+}
+
+.infoCard:hover {
+  background: rgba(26, 35, 50, 0.8);
+  border-color: rgba(255, 107, 157, 0.3);
+  transform: translateY(-2px);
+}
+
+.infoIcon {
+  font-size: 24px;
+  color: #ff6b9d;
+  min-width: 32px;
+}
+
+.infoContent {
+  flex: 1;
+}
+
+.infoLabel {
+  color: rgba(248, 248, 255, 0.7);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.infoValue {
+  color: #fffafa;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Studios, Producers, Genres Sections */
+.studiosSection,
+.producersSection,
+.genresSection {
+  margin-bottom: 30px;
+}
+
+.studiosList,
+.producersList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.studioTag,
+.producerTag {
+  background: #1a2332;
+  color: #f8f8ff;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 107, 157, 0.2);
+}
+
+.genresList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.genreTag {
+  background-color: #ff6b9d;
+  color: #fffafa;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+  transition: all 0.3s ease;
+}
+
+.genreTag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+}
+
+/* Media Section */
+.mediaSection {
+  position: sticky;
+  top: 40px;
+}
+
+.posterContainer {
+  margin-bottom: 30px;
+}
+
+.animePoster {
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.animePoster:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.trailerBtn {
+  background: #ff6b9d;
+  color: #fffafa;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+}
+
+.trailerBtn:hover {
+  background: #ffb7c5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+  color: #fffafa;
+}
+
+.malBtn {
+  background: transparent;
+  color: #b794f6;
+  border: 2px solid #b794f6;
+}
+
+.malBtn:hover {
+  background: rgba(183, 148, 246, 0.1);
+  color: #fffafa;
+  border-color: #fffafa;
+  transform: translateY(-2px);
+}
+
+.watchlistBtn {
+  background-color: #ff6b9d;
+  color: #fffafa;
+  box-shadow: 0 4px 15px rgba(255, 183, 197, 0.3);
+}
+
+.watchlistBtn:hover {
+  background: #ff6b9d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 183, 197, 0.4);
+  color: #fffafa;
+}
+
+/* Trailer Modal */
+.trailerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.modalContent {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  background: #1a2332;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modalClose {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: #fffafa;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.modalClose:hover {
+  background: rgba(255, 107, 157, 0.8);
+}
+
+.videoContainer {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.videoContainer iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Loading Skeleton */
+.loadingSkeleton {
+  animation: pulse 2s infinite;
+}
+
+.skeletonHeader,
+.skeletonTitle,
+.skeletonBadges,
+.skeletonSynopsis,
+.skeletonGrid,
+.skeletonImage {
+  background: linear-gradient(90deg, #1a2332 25%, #2a3442 50%, #1a2332 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.skeletonHeader {
+  height: 20px;
+  width: 300px;
+}
+
+.skeletonTitle {
+  height: 40px;
+  width: 500px;
+}
+
+.skeletonBadges {
+  height: 30px;
+  width: 400px;
+}
+
+.skeletonSynopsis {
+  height: 200px;
+}
+
+.skeletonGrid {
+  height: 300px;
+}
+
+.skeletonImage {
+  height: 600px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Error State */
+.errorState {
+  text-align: center;
+  padding: 100px 20px;
+  color: rgba(248, 248, 255, 0.7);
+}
+
+.errorState h2 {
+  color: #fffafa;
+  margin-bottom: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .mainTitle {
+    font-size: 36px;
+  }
+
+  .infoGrid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .mediaSection {
+    position: static;
+    margin-top: 40px;
+  }
+
+  .mainTitle {
+    font-size: 32px;
+  }
+
+  .japaneseTitle {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 15px;
+  }
+
+  .mainTitle {
+    font-size: 28px;
+  }
+
+  .badgeRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .synopsisSection {
+    padding: 20px;
+  }
+
+  .breadcrumbNav {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainTitle {
+    font-size: 24px;
+  }
+
+  .japaneseTitle {
+    font-size: 16px;
+  }
+
+  .actionBtn {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
