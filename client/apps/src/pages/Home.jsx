@@ -157,12 +157,12 @@ export default function Home() {
       )}
 
       {/* Debug info - you can remove this later */}
-      <div style={{ padding: "2rem", textAlign: "center", color: "#fffafa" }}>
+      {/* <div style={{ padding: "2rem", textAlign: "center", color: "#fffafa" }}>
         <p>Popular anime loaded: {animeData.length}</p>
         {recommendationData.length > 0 && (
           <p>Recommendations loaded: {recommendationData.length}</p>
         )}
-      </div>
+      </div> */}
 
       <AnimeSearchSection />
     </>

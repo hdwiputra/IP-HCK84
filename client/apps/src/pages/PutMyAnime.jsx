@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "./RegistrationPage.css";
+import styles from "./css_modules/RegistrationPage.module.css";
 
 export default function PutMyAnime() {
   const [score, setScore] = useState("");
@@ -18,12 +18,12 @@ export default function PutMyAnime() {
   const token = localStorage.getItem("access_token");
 
   const createFloatingShapes = () => {
-    const container = document.querySelector(".floating-shapes");
+    const container = document.querySelector(`.${styles.floatingShapes}`);
     if (container) {
       container.innerHTML = "";
       for (let i = 0; i < 20; i++) {
         const shape = document.createElement("div");
-        shape.className = "floating-shape";
+        shape.className = styles.floatingShape;
         shape.style.left = Math.random() * 100 + "%";
         shape.style.animationDelay = Math.random() * 10 + "s";
         shape.style.animationDuration = 10 + Math.random() * 20 + "s";
@@ -134,8 +134,8 @@ export default function PutMyAnime() {
 
     // Add fade-in effect
     const timer = setTimeout(() => {
-      const card = document.querySelector(".registration-card");
-      card?.classList.add("fade-in");
+      const card = document.querySelector(`.${styles.registrationCard}`);
+      card?.classList.add(styles.fadeIn);
     }, 100);
 
     // Create floating shapes
@@ -150,13 +150,13 @@ export default function PutMyAnime() {
 
   if (isLoading) {
     return (
-      <div className="registration-page">
-        <div className="background-pattern"></div>
+      <div className={styles.registrationPage}>
+        <div className={styles.backgroundPattern}></div>
         <div className="container">
-          <div className="registration-card fade-in">
-            <div className="card-header">
-              <div className="logo-section">
-                <div className="logo-icon">
+          <div className={`${styles.registrationCard} ${styles.fadeIn}`}>
+            <div className={styles.cardHeader}>
+              <div className={styles.logoSection}>
+                <div className={styles.logoIcon}>
                   <svg
                     width="40"
                     height="40"
@@ -169,9 +169,9 @@ export default function PutMyAnime() {
                     />
                   </svg>
                 </div>
-                <h1 className="logo-text">AniTrack+</h1>
+                <h1 className={styles.logoText}>AniTrack+</h1>
               </div>
-              <p className="subtitle">Loading anime data...</p>
+              <p className={styles.subtitle}>Loading anime data...</p>
             </div>
           </div>
         </div>
@@ -180,19 +180,19 @@ export default function PutMyAnime() {
   }
 
   return (
-    <div className="registration-page">
-      <div className="background-pattern"></div>
-      <div className="floating-shapes"></div>
+    <div className={styles.registrationPage}>
+      <div className={styles.backgroundPattern}></div>
+      <div className={styles.floatingShapes}></div>
 
       <div className="container">
-        <div className="registration-card">
-          <Link to="/my-animes" className="back-btn">
+        <div className={styles.registrationCard}>
+          <Link to="/my-animes" className={styles.backBtn}>
             ← Back to My List
           </Link>
 
-          <div className="card-header">
-            <div className="logo-section">
-              <div className="logo-icon">
+          <div className={styles.cardHeader}>
+            <div className={styles.logoSection}>
+              <div className={styles.logoIcon}>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="#ff6b9d">
                   <path
                     d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"
@@ -200,14 +200,14 @@ export default function PutMyAnime() {
                   />
                 </svg>
               </div>
-              <h1 className="logo-text">AniTrack+</h1>
+              <h1 className={styles.logoText}>AniTrack+</h1>
             </div>
-            <p className="subtitle">
+            <p className={styles.subtitle}>
               Update your anime watch list information here!
             </p>
             {animeData?.Anime && (
               <p
-                className="anime-title"
+                className={styles.animeTitle}
                 style={{
                   color: "#ff6b9d",
                   fontWeight: "bold",
@@ -219,11 +219,11 @@ export default function PutMyAnime() {
             )}
           </div>
 
-          <form className="registration-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Watch Status</label>
+          <form className={styles.registrationForm} onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Watch Status</label>
               <select
-                className="form-control"
+                className={styles.formControl}
                 value={watchStatus}
                 onChange={(e) => setWatchStatus(e.target.value)}
                 required
@@ -233,26 +233,26 @@ export default function PutMyAnime() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Anime Score (1-10)</label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Anime Score (1-10)</label>
               <input
                 type="number"
                 min="1"
                 max="10"
-                className="form-control"
+                className={styles.formControl}
                 placeholder="Enter your personal score for this Anime (1-10)"
                 value={score}
                 onChange={(e) => setScore(e.target.value)}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Episodes Watched</label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Episodes Watched</label>
               <input
                 type="number"
                 min="0"
                 max={animeData?.Anime?.episodes || 9999}
-                className="form-control"
+                className={styles.formControl}
                 placeholder="Enter how many episodes you have watched"
                 value={episodesWatched}
                 onChange={(e) => setEpisodesWatched(e.target.value)}
@@ -265,10 +265,10 @@ export default function PutMyAnime() {
               )}
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Notes</label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Notes</label>
               <textarea
-                className="form-control"
+                className={styles.formControl}
                 rows="4"
                 placeholder="What do you want to say about this Anime?"
                 value={notes}
@@ -279,7 +279,7 @@ export default function PutMyAnime() {
 
             <button
               type="submit"
-              className="create-account-btn"
+              className={styles.createAccountBtn}
               disabled={isSubmitting}
             >
               {isSubmitting ? "Updating..." : "Update Anime"}

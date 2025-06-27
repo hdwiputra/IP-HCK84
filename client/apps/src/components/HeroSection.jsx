@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import "./HeroSection.css";
 import { useNavigate } from "react-router";
+import "./HeroSection.css";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Trigger fade-in animation on mount
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 100);
@@ -18,14 +17,11 @@ const HeroSection = () => {
   }, []);
 
   const handleGetStarted = () => {
-    // Smooth scroll to next section or navigate to signup
     const nextSection = document.getElementById("main-content");
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: "smooth" });
     } else {
-      // Navigate to signup/login page
       navigate("/register");
-      console.log("Navigate to get started");
     }
   };
 
@@ -89,12 +85,7 @@ const HeroSection = () => {
           {/* Right Side Decoration */}
           <div className="col-lg-4 col-xl-5 d-none d-lg-block">
             <div className="hero-decoration">
-              <svg
-                className="anime-graphic"
-                viewBox="0 0 400 400"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg className="anime-graphic" viewBox="0 0 400 400" fill="none">
                 {/* Abstract anime-inspired shapes */}
                 <circle
                   cx="200"

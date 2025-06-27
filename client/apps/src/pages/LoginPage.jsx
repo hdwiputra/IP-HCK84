@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "./RegistrationPage.css"; // Using the same CSS file
+import styles from "./css_modules/RegistrationPage.module.css"; // Using the same CSS module
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,11 +11,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const createFloatingShapes = () => {
-    const container = document.querySelector(".floating-shapes");
+    const container = document.querySelector(`.${styles.floatingShapes}`);
     if (container) {
       for (let i = 0; i < 20; i++) {
         const shape = document.createElement("div");
-        shape.className = "floating-shape";
+        shape.className = styles.floatingShape;
         shape.style.left = Math.random() * 100 + "%";
         shape.style.animationDelay = Math.random() * 10 + "s";
         shape.style.animationDuration = 10 + Math.random() * 20 + "s";
@@ -41,9 +41,9 @@ export default function LoginPage() {
     checkExistingToken();
 
     // Add fade-in effect
-    const card = document.querySelector(".registration-card");
+    const card = document.querySelector(`.${styles.registrationCard}`);
     setTimeout(() => {
-      card?.classList.add("fade-in");
+      card?.classList.add(styles.fadeIn);
     }, 100);
 
     // Create floating shapes
@@ -88,19 +88,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="registration-page">
-      <div className="background-pattern"></div>
-      <div className="floating-shapes"></div>
+    <div className={styles.registrationPage}>
+      <div className={styles.backgroundPattern}></div>
+      <div className={styles.floatingShapes}></div>
 
       <div className="container">
-        <div className="registration-card">
-          <Link to="/" className="back-btn">
+        <div className={styles.registrationCard}>
+          <Link to="/" className={styles.backBtn}>
             ← Back
           </Link>
 
-          <div className="card-header">
-            <div className="logo-section">
-              <div className="logo-icon">
+          <div className={styles.cardHeader}>
+            <div className={styles.logoSection}>
+              <div className={styles.logoIcon}>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="#ff6b9d">
                   <path
                     d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"
@@ -108,19 +108,19 @@ export default function LoginPage() {
                   />
                 </svg>
               </div>
-              <h1 className="logo-text">AniTrack+</h1>
+              <h1 className={styles.logoText}>AniTrack+</h1>
             </div>
-            <p className="subtitle">
+            <p className={styles.subtitle}>
               Welcome back! Login to continue tracking your anime
             </p>
           </div>
 
-          <form className="registration-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Username or Email</label>
+          <form className={styles.registrationForm} onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Username or Email</label>
               <input
                 type="text"
-                className="form-control"
+                className={styles.formControl}
                 placeholder="Enter your username or email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -128,11 +128,11 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Password</label>
               <input
                 type="password"
-                className="form-control"
+                className={styles.formControl}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -142,18 +142,18 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="create-account-btn"
+              className={styles.createAccountBtn}
               disabled={isSubmitting}
             >
               {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
 
-          <div className="divider">
-            <span className="divider-text">OR</span>
+          <div className={styles.divider}>
+            <span className={styles.dividerText}>OR</span>
           </div>
 
-          <button className="google-btn">
+          <button className={styles.googleBtn}>
             <svg width="20" height="20" viewBox="0 0 20 20" className="me-2">
               <path
                 fill="#4285F4"
@@ -175,10 +175,10 @@ export default function LoginPage() {
             Continue with Google
           </button>
 
-          <div className="card-footer">
-            <p className="signin-link">
+          <div className={styles.cardFooter}>
+            <p className={styles.signinLink}>
               Don't have an account?{" "}
-              <Link to="/register" className="link">
+              <Link to="/register" className={styles.link}>
                 Sign up
               </Link>
             </p>

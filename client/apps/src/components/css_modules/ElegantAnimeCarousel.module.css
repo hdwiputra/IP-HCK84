@@ -1,0 +1,316 @@
+.elegantAnimeCarousel {
+  padding: 80px 0;
+  background: #0b1426;
+}
+
+.carouselTitle {
+  color: #fffafa;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 40px;
+  padding-left: 20px;
+}
+
+.carouselWrapper {
+  position: relative;
+  padding: 0 60px;
+}
+
+.cardsContainer {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.navArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fffafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  opacity: 0;
+}
+
+.carouselWrapper:hover .navArrow {
+  opacity: 1;
+}
+
+.navArrow:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.prevArrow {
+  left: 10px;
+}
+
+.nextArrow {
+  right: 10px;
+}
+
+.elegantCard {
+  flex: 0 0 auto;
+  width: 200px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.elegantCard:hover {
+  transform: scale(1.05);
+}
+
+.cardImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1a2332;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.cardPoster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.elegantCard:hover .cardPoster {
+  transform: scale(1.1);
+}
+
+.scoreBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fffafa;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(10px);
+}
+
+.star {
+  font-size: 10px;
+}
+
+.rating {
+  font-size: 11px;
+}
+
+.hoverOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.elegantCard:hover .hoverOverlay {
+  opacity: 1;
+}
+
+.watchlistButton {
+  background: rgba(255, 107, 157, 0.9);
+  color: #fffafa;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  transform: translateY(10px);
+}
+
+.elegantCard:hover .watchlistButton {
+  transform: translateY(0);
+}
+
+.watchlistButton:hover {
+  background: rgba(255, 107, 157, 1);
+  transform: translateY(-2px);
+}
+
+.watchlistButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cardInfo {
+  padding: 12px 0;
+}
+
+.cardTitle {
+  color: #fffafa;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(248, 248, 255, 0.6);
+}
+
+.year {
+  color: rgba(248, 248, 255, 0.8);
+}
+
+.episodes {
+  color: rgba(248, 248, 255, 0.6);
+}
+
+.episodes::before {
+  content: "•";
+  margin-right: 8px;
+  color: rgba(248, 248, 255, 0.4);
+}
+
+.pageIndicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.pageDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(248, 248, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pageDot.active {
+  background: #ff6b9d;
+  transform: scale(1.2);
+}
+
+.pageDot:hover:not(.active) {
+  background: rgba(248, 248, 255, 0.5);
+}
+
+@media (max-width: 1200px) {
+  .elegantCard {
+    width: 180px;
+  }
+
+  .cardImageWrapper {
+    height: 270px;
+  }
+
+  .cardsContainer {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 992px) {
+  .carouselWrapper {
+    padding: 0 50px;
+  }
+
+  .elegantCard {
+    width: 160px;
+  }
+
+  .cardImageWrapper {
+    height: 240px;
+  }
+
+  .cardsContainer {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carouselWrapper {
+    padding: 0 20px;
+  }
+
+  .elegantCard {
+    width: 140px;
+  }
+
+  .cardImageWrapper {
+    height: 210px;
+  }
+
+  .navArrow {
+    width: 40px;
+    height: 40px;
+  }
+
+  .prevArrow {
+    left: 5px;
+  }
+
+  .nextArrow {
+    right: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardsContainer {
+    justify-content: center;
+  }
+
+  .elegantCard {
+    width: 200px;
+  }
+
+  .cardImageWrapper {
+    height: 300px;
+  }
+
+  .navArrow {
+    display: none;
+  }
+
+  .carouselWrapper {
+    padding: 0;
+  }
+}

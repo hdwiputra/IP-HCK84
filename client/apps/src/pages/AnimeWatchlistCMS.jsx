@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "./AnimeWatchlistCMS.css";
+import styles from "./css_modules/AnimeWatchlistCMS.module.css";
 
 const AnimeWatchlistCMS = () => {
   const [animeList, setAnimeList] = useState([]);
@@ -67,23 +67,26 @@ const AnimeWatchlistCMS = () => {
 
   const getStatusBadge = (status) => {
     const statusClasses = {
-      Completed: "status-completed",
-      "In Progress": "status-on-hold",
+      Watching: styles.statusWatching,
+      Completed: styles.statusCompleted,
+      "In Progress": styles.statusOnHold,
+      "Plan to Watch": styles.statusPlanToWatch,
+      Dropped: styles.statusDropped,
     };
 
     return (
-      <span className={`status-badge ${statusClasses[status] || ""}`}>
+      <span className={`${styles.statusBadge} ${statusClasses[status] || ""}`}>
         {status}
       </span>
     );
   };
 
   const getScoreDisplay = (score) => {
-    if (score === null) return <span className="no-score">—</span>;
+    if (score === null) return <span className={styles.noScore}>—</span>;
     return (
-      <div className="score-display">
-        <span className="star">⭐</span>
-        <span className="score-value">{score}</span>
+      <div className={styles.scoreDisplay}>
+        <span className={styles.star}>⭐</span>
+        <span className={styles.scoreValue}>{score}</span>
       </div>
     );
   };
@@ -104,11 +107,11 @@ const AnimeWatchlistCMS = () => {
 
   if (loading) {
     return (
-      <div className="anime-cms">
+      <div className={styles.animeCms}>
         <div className="container">
-          <div className="cms-header">
-            <h1 className="cms-title">My Anime Watchlist</h1>
-            <p className="cms-subtitle">Loading your anime...</p>
+          <div className={styles.cmsHeader}>
+            <h1 className={styles.cmsTitle}>My Anime Watchlist</h1>
+            <p className={styles.cmsSubtitle}>Loading your anime...</p>
           </div>
         </div>
       </div>
@@ -116,24 +119,24 @@ const AnimeWatchlistCMS = () => {
   }
 
   return (
-    <div className="anime-cms">
+    <div className={styles.animeCms}>
       <div className="container">
-        <div className="cms-header">
-          <h1 className="cms-title">My Anime Watchlist</h1>
-          <p className="cms-subtitle">
+        <div className={styles.cmsHeader}>
+          <h1 className={styles.cmsTitle}>My Anime Watchlist</h1>
+          <p className={styles.cmsSubtitle}>
             Manage your anime tracking and progress
           </p>
         </div>
 
         {animeList.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">📺</div>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📺</div>
             <h3>No anime in your watchlist</h3>
             <p>Start adding anime to track your progress!</p>
           </div>
         ) : (
-          <div className="table-container">
-            <table className="anime-table">
+          <div className={styles.tableContainer}>
+            <table className={styles.animeTable}>
               <thead>
                 <tr>
                   <th>No.</th>
@@ -147,38 +150,36 @@ const AnimeWatchlistCMS = () => {
               </thead>
               <tbody>
                 {animeList.map((anime, index) => (
-                  <tr key={anime.id} className="anime-row">
-                    <td className="anime-number">{index + 1}</td>
-                    <td className="anime-name">
-                      <div className="name-cell">
+                  <tr key={anime.id} className={styles.animeRow}>
+                    <td className={styles.animeNumber}>{index + 1}</td>
+                    <td>
+                      <div className={styles.nameCell}>
                         <img
                           src={anime.Anime.image_url || "/placeholder.svg"}
                           alt={anime.Anime.title}
-                          className="anime-thumbnail"
+                          className={styles.animeThumbnail}
                         />
-                        <span className="name-text">{anime.Anime.title}</span>
+                        <span className={styles.nameText}>
+                          {anime.Anime.title}
+                        </span>
                       </div>
                     </td>
-                    <td className="anime-status">
-                      {getStatusBadge(anime.watch_status)}
-                    </td>
-                    <td className="anime-score">
-                      {getScoreDisplay(anime.score)}
-                    </td>
-                    <td className="anime-episodes">
-                      <span className="episode-progress">
+                    <td>{getStatusBadge(anime.watch_status)}</td>
+                    <td>{getScoreDisplay(anime.score)}</td>
+                    <td>
+                      <span className={styles.episodeProgress}>
                         {anime.episodes_watched} / {anime.Anime.episodes}
                       </span>
                     </td>
-                    <td className="anime-notes">
-                      <div className="notes-cell">
-                        <span className="notes-text">{anime.notes}</span>
+                    <td>
+                      <div className={styles.notesCell}>
+                        <span className={styles.notesText}>{anime.notes}</span>
                       </div>
                     </td>
-                    <td className="anime-actions">
-                      <div className="action-buttons">
+                    <td>
+                      <div className={styles.actionButtons}>
                         <button
-                          className="action-btn details-btn"
+                          className={`${styles.actionBtn} ${styles.detailsBtn}`}
                           onClick={() => navigate(`/animes/${anime.AnimeId}`)}
                           title="View Details"
                         >
@@ -204,7 +205,7 @@ const AnimeWatchlistCMS = () => {
                           Details
                         </button>
                         <button
-                          className="action-btn edit-btn"
+                          className={`${styles.actionBtn} ${styles.editBtn}`}
                           onClick={() => navigate(`/my-animes/${anime.id}`)}
                           title="Edit"
                         >
@@ -228,7 +229,7 @@ const AnimeWatchlistCMS = () => {
                           Edit
                         </button>
                         <button
-                          className="action-btn delete-btn"
+                          className={`${styles.actionBtn} ${styles.deleteBtn}`}
                           onClick={() => handleDelete(anime.id)}
                           title="Delete"
                         >
