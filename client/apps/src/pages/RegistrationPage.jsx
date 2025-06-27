@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-
-// Note: You'll need to import these in your actual implementation:
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -13,18 +11,9 @@ export default function RegistrationPage() {
   const [password, setPassword] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Note: In your actual implementation, use:
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Add fade-in effect
-    const card = document.querySelector(".registration-card");
-    setTimeout(() => {
-      card?.classList.add("fade-in");
-    }, 100);
-
-    // Create floating shapes
+  const createFloatingShapes = () => {
     const container = document.querySelector(".floating-shapes");
     if (container) {
       for (let i = 0; i < 20; i++) {
@@ -36,6 +25,17 @@ export default function RegistrationPage() {
         container.appendChild(shape);
       }
     }
+  };
+
+  useEffect(() => {
+    // Add fade-in effect
+    const card = document.querySelector(".registration-card");
+    setTimeout(() => {
+      card?.classList.add("fade-in");
+    }, 100);
+
+    // Create floating shapes
+    createFloatingShapes();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -53,17 +53,14 @@ export default function RegistrationPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios({
-        method: "POST",
-        url: `http://localhost:3000/register`,
-        data: {
-          fullName,
-          email,
-          password,
-        },
+      const response = await axios.post("http://localhost:3000/register", {
+        fullName,
+        username,
+        email,
+        password,
       });
 
-      console.log(response, "<<===postRegister");
+      console.log(response.data, "<<< postRegister");
 
       Swal.fire({
         title: "Success",
@@ -73,15 +70,11 @@ export default function RegistrationPage() {
 
       navigate("/login");
     } catch (error) {
-      let message = "Something went wrong!";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message;
-      }
-      console.log(error);
+      console.error("Registration error:", error);
 
       Swal.fire({
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong!",
         icon: "error",
       });
     } finally {
@@ -96,13 +89,10 @@ export default function RegistrationPage() {
 
       <div className="container">
         <div className="registration-card">
-          <Link
-            to={"/"}
-            className="back-btn"
-            style={{ textDecoration: "none", color: "white" }}
-          >
-            <p>← Back</p>
+          <Link to="/" className="back-btn">
+            ← Back
           </Link>
+
           <div className="card-header">
             <div className="logo-section">
               <div className="logo-icon">
@@ -115,14 +105,12 @@ export default function RegistrationPage() {
               </div>
               <h1 className="logo-text">AniTrack+</h1>
             </div>
-            <br />
-            <br />
             <p className="subtitle">
               Create your account and start anime tracking+
             </p>
           </div>
 
-          <div className="registration-form">
+          <form onSubmit={handleSubmit} className="registration-form">
             <div className="form-group">
               <label className="form-label">Full Name</label>
               <input
@@ -140,7 +128,7 @@ export default function RegistrationPage() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Enter your full name"
+                placeholder="Choose a username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -194,13 +182,13 @@ export default function RegistrationPage() {
             </div>
 
             <button
+              type="submit"
               className="create-account-btn"
               disabled={isSubmitting}
-              onClick={handleSubmit}
             >
               {isSubmitting ? "Creating Account..." : "Create Account"}
             </button>
-          </div>
+          </form>
 
           <div className="divider">
             <span className="divider-text">OR</span>
@@ -231,9 +219,9 @@ export default function RegistrationPage() {
           <div className="card-footer">
             <p className="signin-link">
               Already have an account?{" "}
-              <a href="/login" className="link">
+              <Link to="/login" className="link">
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </div>

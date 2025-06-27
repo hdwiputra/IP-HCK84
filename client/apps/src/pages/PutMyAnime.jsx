@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "./RegistrationPage.css"; // Using the same CSS file
+import "./RegistrationPage.css";
 
 export default function PutMyAnime() {
   const [score, setScore] = useState("");
@@ -12,55 +12,55 @@ export default function PutMyAnime() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [animeData, setAnimeData] = useState(null);
+
   const navigate = useNavigate();
   const { id } = useParams();
   const token = localStorage.getItem("access_token");
 
-  // Check if user is authenticated
-  useEffect(() => {
-    if (!token) {
-      Swal.fire({
-        title: "Authentication Required",
-        text: "Please login to access this page",
-        icon: "warning",
-      });
-      navigate("/login");
-      return;
+  const createFloatingShapes = () => {
+    const container = document.querySelector(".floating-shapes");
+    if (container) {
+      container.innerHTML = "";
+      for (let i = 0; i < 20; i++) {
+        const shape = document.createElement("div");
+        shape.className = "floating-shape";
+        shape.style.left = Math.random() * 100 + "%";
+        shape.style.animationDelay = Math.random() * 10 + "s";
+        shape.style.animationDuration = 10 + Math.random() * 20 + "s";
+        container.appendChild(shape);
+      }
     }
-  }, [token, navigate]);
+  };
 
-  const fetchMyAnimeId = async (id) => {
+  const fetchMyAnimeId = async () => {
+    if (!id || !token) return;
+
     try {
-      const response = await axios({
-        method: "GET",
-        url: `http://localhost:3000/animes/${id}`,
+      setIsLoading(true);
+      const response = await axios.get(`http://localhost:3000/animes/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       const anime = response.data;
-      setAnimeData(anime);
+      console.log(anime, "<<< fetchMyAnimesId");
 
-      // Populate form with existing data
+      setAnimeData(anime);
       setScore(anime.score || "");
       setEpisodesWatched(anime.episodes_watched || "");
       setNotes(anime.notes || "");
       setWatchStatus(anime.watch_status || "In Progress");
-
-      console.log(response.data, "<<< fetchMyAnimesId");
     } catch (error) {
-      let message = "Something went wrong!";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message;
-      }
-      console.log(error);
+      console.error("Error fetching anime:", error);
 
       Swal.fire({
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong!",
         icon: "error",
       });
+
+      navigate("/my-animes");
     } finally {
       setIsLoading(false);
     }
@@ -81,21 +81,22 @@ export default function PutMyAnime() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios({
-        method: "PUT",
-        url: `http://localhost:3000/animes/${id}`,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: {
+      const response = await axios.put(
+        `http://localhost:3000/animes/${id}`,
+        {
           score: score ? parseInt(score) : null,
           episodes_watched: episodesWatched ? parseInt(episodesWatched) : 0,
           notes: notes,
           watch_status: watchStatus,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      console.log(response, "<<===putMyAnimes");
+      console.log(response.data, "<<< handleSubmit");
 
       Swal.fire({
         title: "Success",
@@ -105,15 +106,11 @@ export default function PutMyAnime() {
 
       navigate("/my-animes");
     } catch (error) {
-      let message = "Something went wrong!";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message;
-      }
-      console.log(error);
+      console.error("Error updating anime:", error);
 
       Swal.fire({
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong!",
         icon: "error",
       });
     } finally {
@@ -122,9 +119,18 @@ export default function PutMyAnime() {
   };
 
   useEffect(() => {
-    if (id && token) {
-      fetchMyAnimeId(id);
+    if (!token) {
+      Swal.fire({
+        title: "Authentication Required",
+        text: "Please login to access this page",
+        icon: "warning",
+      });
+      navigate("/login");
+      return;
     }
+
+    // Fetch anime data
+    fetchMyAnimeId();
 
     // Add fade-in effect
     const timer = setTimeout(() => {
@@ -133,35 +139,21 @@ export default function PutMyAnime() {
     }, 100);
 
     // Create floating shapes
-    const container = document.querySelector(".floating-shapes");
-    if (container) {
-      // Clear existing shapes first
-      container.innerHTML = "";
-      for (let i = 0; i < 20; i++) {
-        const shape = document.createElement("div");
-        shape.className = "floating-shape";
-        shape.style.left = Math.random() * 100 + "%";
-        shape.style.animationDelay = Math.random() * 10 + "s";
-        shape.style.animationDuration = 10 + Math.random() * 20 + "s";
-        container.appendChild(shape);
-      }
-    }
+    createFloatingShapes();
 
     return () => clearTimeout(timer);
-  }, [id, token]);
+  }, [id]); // Remove token from dependencies to fix the loading issue
 
-  // Don't render anything if no token
   if (!token) {
     return null;
   }
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="registration-page">
         <div className="background-pattern"></div>
         <div className="container">
-          <div className="registration-card">
+          <div className="registration-card fade-in">
             <div className="card-header">
               <div className="logo-section">
                 <div className="logo-icon">
@@ -179,7 +171,6 @@ export default function PutMyAnime() {
                 </div>
                 <h1 className="logo-text">AniTrack+</h1>
               </div>
-              <br />
               <p className="subtitle">Loading anime data...</p>
             </div>
           </div>
@@ -195,13 +186,10 @@ export default function PutMyAnime() {
 
       <div className="container">
         <div className="registration-card">
-          <Link
-            to={"/my-animes"}
-            className="back-btn"
-            style={{ textDecoration: "none", color: "white" }}
-          >
-            <p>← Back to My List</p>
+          <Link to="/my-animes" className="back-btn">
+            ← Back to My List
           </Link>
+
           <div className="card-header">
             <div className="logo-section">
               <div className="logo-icon">
@@ -214,12 +202,10 @@ export default function PutMyAnime() {
               </div>
               <h1 className="logo-text">AniTrack+</h1>
             </div>
-            <br />
-            <br />
             <p className="subtitle">
               Update your anime watch list information here!
             </p>
-            {animeData && animeData.Anime && (
+            {animeData?.Anime && (
               <p
                 className="anime-title"
                 style={{
@@ -261,19 +247,18 @@ export default function PutMyAnime() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">
-                Episodes Watched (Max: {animeData.Anime.episodes})
-              </label>
+              <label className="form-label">Episodes Watched</label>
               <input
                 type="number"
                 min="0"
+                max={animeData?.Anime?.episodes || 9999}
                 className="form-control"
                 placeholder="Enter how many episodes you have watched"
                 value={episodesWatched}
                 onChange={(e) => setEpisodesWatched(e.target.value)}
                 required
               />
-              {animeData && animeData.Anime && animeData.Anime.episodes && (
+              {animeData?.Anime?.episodes && (
                 <small style={{ color: "#888", fontSize: "12px" }}>
                   Total episodes: {animeData.Anime.episodes}
                 </small>
@@ -291,7 +276,6 @@ export default function PutMyAnime() {
                 style={{ resize: "vertical", minHeight: "80px" }}
               />
             </div>
-            <br />
 
             <button
               type="submit"

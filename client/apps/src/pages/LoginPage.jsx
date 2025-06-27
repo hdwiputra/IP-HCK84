@@ -10,23 +10,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      Swal.fire({
-        title: "warning",
-        text: "You already logged in!",
-        icon: "warning",
-      });
-      navigate("/");
-    }
-    // Add fade-in effect
-    const card = document.querySelector(".registration-card");
-    setTimeout(() => {
-      card?.classList.add("fade-in");
-    }, 100);
-
-    // Create floating shapes
+  const createFloatingShapes = () => {
     const container = document.querySelector(".floating-shapes");
     if (container) {
       for (let i = 0; i < 20; i++) {
@@ -38,28 +22,48 @@ export default function LoginPage() {
         container.appendChild(shape);
       }
     }
-  }, []);
+  };
+
+  const checkExistingToken = () => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      Swal.fire({
+        title: "Warning",
+        text: "You are already logged in!",
+        icon: "warning",
+      });
+      navigate("/");
+    }
+  };
+
+  useEffect(() => {
+    // Check if user is already logged in
+    checkExistingToken();
+
+    // Add fade-in effect
+    const card = document.querySelector(".registration-card");
+    setTimeout(() => {
+      card?.classList.add("fade-in");
+    }, 100);
+
+    // Create floating shapes
+    createFloatingShapes();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setIsSubmitting(true);
 
     try {
-      let isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      let body = {};
-      if (isEmail) {
-        body = { email: email, password: password };
-      } else {
-        body = { username: email, password: password };
-      }
-      const response = await axios({
-        method: "POST",
-        url: `http://localhost:3000/login`,
-        data: body,
-      });
+      // Check if input is email or username
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const body = isEmail
+        ? { email, password }
+        : { username: email, password };
 
-      console.log(response, "<<===postLogin");
+      const response = await axios.post("http://localhost:3000/login", body);
+
+      console.log(response.data, "<<< handleSubmit");
 
       localStorage.setItem("access_token", response.data.access_token);
 
@@ -71,15 +75,11 @@ export default function LoginPage() {
 
       navigate("/");
     } catch (error) {
-      let message = "Something went wrong!";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message;
-      }
-      console.log(error);
+      console.error("Login error:", error);
 
       Swal.fire({
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong!",
         icon: "error",
       });
     } finally {
@@ -94,13 +94,10 @@ export default function LoginPage() {
 
       <div className="container">
         <div className="registration-card">
-          <Link
-            to={"/"}
-            className="back-btn"
-            style={{ textDecoration: "none", color: "white" }}
-          >
-            <p>← Back</p>
+          <Link to="/" className="back-btn">
+            ← Back
           </Link>
+
           <div className="card-header">
             <div className="logo-section">
               <div className="logo-icon">
@@ -113,8 +110,6 @@ export default function LoginPage() {
               </div>
               <h1 className="logo-text">AniTrack+</h1>
             </div>
-            <br />
-            <br />
             <p className="subtitle">
               Welcome back! Login to continue tracking your anime
             </p>
@@ -144,7 +139,6 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <br />
 
             <button
               type="submit"

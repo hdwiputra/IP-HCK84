@@ -4,55 +4,47 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import styles from "./AnimeDetailsPage.module.css";
+import styles from "./css_modules/AnimeDetailsPage.module.css";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const token = localStorage.getItem("access_token");
 
-  const [isVisible, setIsVisible] = useState(false);
-  const [showFullSynopsis, setShowFullSynopsis] = useState(false);
+  const fetchAnime = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:3000/pub/animes/${id}`
+      );
+      setAnime(response.data);
+      setIsVisible(true);
+    } catch (err) {
+      console.error("Error fetching anime:", err);
+
+      Swal.fire({
+        title: "Anime Not Found!",
+        text:
+          err.response?.status === 404
+            ? "The anime you are looking for does not exist."
+            : "Failed to load anime data. Please try again later.",
+        icon: "error",
+        confirmButtonText: "Go Back to My Animes",
+        confirmButtonColor: "#3085d6",
+      }).then(() => {
+        navigate("/my-animes");
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAnime = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch anime data from your backend API
-        const response = await axios({
-          method: "GET",
-          url: `http://localhost:3000/pub/animes/${id}`,
-        });
-        setAnime(response.data);
-        setIsVisible(true);
-      } catch (err) {
-        console.error("Error fetching anime:", err);
-
-        // Show SweetAlert for error and navigate back
-        Swal.fire({
-          title: "Anime Not Found!",
-          text:
-            err.response?.status === 404
-              ? "The anime you are looking for does not exist."
-              : "Failed to load anime data. Please try again later.",
-          icon: "error",
-          confirmButtonText: "Go Back to My Animes",
-          confirmButtonColor: "#3085d6",
-        }).then(() => {
-          navigate("/my-animes");
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchAnime();
-    } else {
-      // If no ID provided, show error and navigate
+    // Early return if no ID
+    if (!id) {
       Swal.fire({
         title: "Invalid Request!",
         text: "No anime ID provided.",
@@ -62,43 +54,46 @@ const AnimeDetailsPage = () => {
       }).then(() => {
         navigate("/my-animes");
       });
+      return;
     }
+
+    fetchAnime();
   }, [id, navigate]);
 
-  const handleAddToWatchlist = async (anime) => {
+  const handleAddToWatchlist = async () => {
+    if (!token) {
+      Swal.fire({
+        icon: "warning",
+        title: "You are not logged in!",
+        text: "You need to login first before adding data to watch list!",
+      });
+      navigate("/login");
+      return;
+    }
+
     try {
-      if (!token) {
-        navigate("/login");
-        Swal.fire({
-          icon: "warning",
-          title: "You are not logged in!",
-          text: `You need to login first before adding data to watch list!`,
-        });
-      } else {
-        const response = await axios({
-          method: "post",
-          url: `http://localhost:3000/animes/${anime.id}`,
+      await axios.post(
+        `http://localhost:3000/animes/${anime.id}`,
+        {},
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        console.log(response.data, "<<< addToWatchlist");
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: `${anime.title} has been added to your watchlist!`,
-        });
-      }
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: `${anime.title} has been added to your watchlist!`,
+      });
     } catch (error) {
-      console.log(error);
-      let message = "Something went wrong";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message || message;
-      }
+      console.error("Error adding to watchlist:", error);
+
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong",
       });
     }
   };
@@ -110,20 +105,6 @@ const AnimeDetailsPage = () => {
       month: "short",
       day: "numeric",
     });
-  };
-
-  const truncateSynopsis = (text, maxLength = 400) => {
-    if (!text || text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
-
-  // Helper function to extract YouTube video ID from URL
-  const getYouTubeVideoId = (url) => {
-    if (!url) return null;
-    const match = url.match(
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
-    );
-    return match ? match[1] : null;
   };
 
   if (loading) {
@@ -149,22 +130,18 @@ const AnimeDetailsPage = () => {
     );
   }
 
-  // If there's no anime data (error case), return null since SweetAlert handles the error
-  if (!anime) {
-    return null;
-  }
+  // Early return if no anime data
+  if (!anime) return null;
 
   return (
     <div className={styles.animeDetailsPage}>
-      {/* Background Pattern */}
       <div className={styles.backgroundPattern}></div>
 
       <div className="container">
-        {/* Back Button */}
         <button
           className={styles.backButton}
-          onClick={() => navigate(`/`)}
-          style={{ marginTop: "2rem" }} // or "12px", etc.
+          onClick={() => navigate("/")}
+          style={{ marginTop: "2rem" }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
@@ -343,7 +320,6 @@ const AnimeDetailsPage = () => {
             {/* Right Column - Media Section */}
             <div className="col-lg-4">
               <div className={styles.mediaSection}>
-                {/* Anime Poster */}
                 <div className={styles.posterContainer}>
                   <img
                     src={anime.image_url || "/placeholder.svg"}

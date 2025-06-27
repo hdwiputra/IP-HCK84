@@ -13,8 +13,7 @@ export default function Home() {
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   // const token = localStorage.getItem("access_token");
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzUwODc4MjI5fQ.WYyCrbEb1ww_MsCOjx-xkfZ5CV3Bk2dpXmDEqd8Kjek";
+  const token = localStorage.getItem("access_token");
 
   // Helper function to extract year from aired_from or use existing year
   const getAnimeYear = (anime) => {
@@ -37,7 +36,6 @@ export default function Home() {
       episodes: anime.episodes || "Ongoing",
       genre: anime.genre || [],
       synopsis: anime.synopsis,
-      // Keep original data for reference
       original: anime,
     }));
   };
@@ -47,30 +45,30 @@ export default function Home() {
 
     try {
       setLoadingRecommendations(true);
-      const response = await axios({
-        method: "get",
-        url: "http://localhost:3000/animes/recommendation",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(response.data, "<<< getRecommendations");
+      const response = await axios.get(
+        "http://localhost:3000/animes/recommendation",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      // Transform recommendations data
+      console.log(response.data, "<<< setLoadingReccomendations");
+
       const transformedRecommendations = transformRecommendationData(
         response.data.recommendations || []
       );
       setRecommendationData(transformedRecommendations);
     } catch (error) {
-      console.log(error);
-      let message = "Something went wrong loading recommendations";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message || message;
-      }
+      console.error("Error fetching recommendations:", error);
+
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: message,
+        text:
+          error.response?.data?.message ||
+          "Something went wrong loading recommendations",
       });
     } finally {
       setLoadingRecommendations(false);
@@ -80,13 +78,12 @@ export default function Home() {
   const fetchAnime = async () => {
     try {
       setLoading(true);
-      const response = await axios({
-        method: "get",
-        url: "http://localhost:3000/pub/animes/popular",
-      });
-      console.log(response.data, "<<< getPubAnimes");
+      const response = await axios.get(
+        "http://localhost:3000/pub/animes/popular"
+      );
 
-      // Transform the data to match AnimeCard component expectations
+      console.log(response.data, "<<< fetchAnime");
+
       const transformedData = response.data.map((anime) => ({
         id: anime.mal_id,
         title: anime.title,
@@ -95,24 +92,21 @@ export default function Home() {
           anime.images?.jpg?.image_url || anime.images?.jpg?.large_image_url,
         score: anime.score,
         year: getAnimeYear(anime),
-        episodes: anime.episodes || "Ongoing", // Show "Ongoing" instead of null
+        episodes: anime.episodes || "Ongoing",
         genre: anime.genres?.map((g) => g.name) || [],
         synopsis: anime.synopsis,
-        // Keep original data for reference
         original: anime,
       }));
 
       setAnimeData(transformedData);
     } catch (error) {
-      console.log(error);
-      let message = "Something went wrong loading anime";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message || message;
-      }
+      console.error("Error fetching anime:", error);
+
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: message,
+        text:
+          error.response?.data?.message || "Something went wrong loading anime",
       });
     } finally {
       setLoading(false);
@@ -123,14 +117,15 @@ export default function Home() {
     fetchAnime();
   }, []);
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, [token]);
+  // useEffect(() => {
+  //   fetchRecommendations();
+  // }, [token]);
 
   return (
     <>
       <HeroSection />
 
+      {/* Recommendations Section */}
       {/* Recommendations Section */}
       {token && (
         <>
@@ -169,7 +164,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* Anime Search Section */}
       <AnimeSearchSection />
     </>
   );

@@ -1,109 +1,137 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import "./AnimeWatchlistCMS.css";
-import Swal from "sweetalert2";
-import axios from "axios";
 import { useNavigate } from "react-router";
+import axios from "axios";
+import Swal from "sweetalert2";
+import "./AnimeWatchlistCMS.css";
 
 const AnimeWatchlistCMS = () => {
   const [animeList, setAnimeList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("access_token");
   const navigate = useNavigate();
 
-  if (token) {
-    const fetchMyAnime = async () => {
-      const token = localStorage.getItem("access_token");
-      try {
-        const response = await axios({
-          method: "GET",
-          url: "http://localhost:3000/animes/",
+  const fetchMyAnime = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:3000/animes/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data, "<<< fetchMyAnime");
+      setAnimeList(response.data);
+    } catch (error) {
+      console.error("Error fetching anime:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (animeId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/animes/${animeId}`,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        console.log(response, "<<=== getMyAnime");
-        setAnimeList(response.data);
-      } catch (error) {
-        let message = "Something went wrong";
-        if (error && error.response && error.response) {
-          error = error.response.data.message;
-          Swal.fire({
-            icon: "error",
-            title: "error",
-            text: message,
-          });
         }
-      }
-    };
+      );
+      console.log(response.data, "<<< handleDelete");
 
-    useEffect(() => {
+      Swal.fire({
+        title: "Success",
+        text: "Anime successfully dropped!",
+        icon: "success",
+      });
+
       fetchMyAnime();
-    }, []);
+    } catch (error) {
+      console.error("Error deleting anime:", error);
 
-    const handleDelete = async (animeId) => {
-      try {
-        const response = await axios({
-          method: "DELETE",
-          url: `http://localhost:3000/animes/${animeId}`,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response, "<<===deleteMyAnime");
-        Swal.fire({
-          title: "success",
-          text: "Anime successfully dropped!",
-          icon: "success",
-        });
-        fetchMyAnime();
-      } catch (error) {
-        let message = "Something went wrong!";
-        if (error && error.response && error.response.data) {
-          message = error.response.data.message;
-        }
-        console.log(error);
-        Swal.fire({
-          title: "error",
-          text: message,
-          icon: "error",
-        });
-      }
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.message || "Something went wrong!",
+        icon: "error",
+      });
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const statusClasses = {
+      Completed: "status-completed",
+      "In Progress": "status-on-hold",
     };
 
-    const getStatusBadge = (status) => {
-      const statusClasses = {
-        Completed: "status-completed",
-        "In Progress": "status-on-hold",
-      };
+    return (
+      <span className={`status-badge ${statusClasses[status] || ""}`}>
+        {status}
+      </span>
+    );
+  };
 
-      return (
-        <span className={`status-badge ${statusClasses[status] || ""}`}>
-          {status}
-        </span>
-      );
-    };
+  const getScoreDisplay = (score) => {
+    if (score === null) return <span className="no-score">—</span>;
+    return (
+      <div className="score-display">
+        <span className="star">⭐</span>
+        <span className="score-value">{score}</span>
+      </div>
+    );
+  };
 
-    const getScoreDisplay = (score) => {
-      if (score === null) return <span className="no-score">—</span>;
-      return (
-        <div className="score-display">
-          <span className="star">⭐</span>
-          <span className="score-value">{score}</span>
-        </div>
-      );
-    };
+  useEffect(() => {
+    if (!token) {
+      Swal.fire({
+        icon: "warning",
+        title: "Not Logged In",
+        text: "Please login to view your watchlist",
+      });
+      navigate("/login");
+      return;
+    }
 
+    fetchMyAnime();
+  }, [token, navigate]);
+
+  if (loading) {
     return (
       <div className="anime-cms">
         <div className="container">
           <div className="cms-header">
             <h1 className="cms-title">My Anime Watchlist</h1>
-            <p className="cms-subtitle">
-              Manage your anime tracking and progress
-            </p>
+            <p className="cms-subtitle">Loading your anime...</p>
           </div>
+        </div>
+      </div>
+    );
+  }
 
+  return (
+    <div className="anime-cms">
+      <div className="container">
+        <div className="cms-header">
+          <h1 className="cms-title">My Anime Watchlist</h1>
+          <p className="cms-subtitle">
+            Manage your anime tracking and progress
+          </p>
+        </div>
+
+        {animeList.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">📺</div>
+            <h3>No anime in your watchlist</h3>
+            <p>Start adding anime to track your progress!</p>
+          </div>
+        ) : (
           <div className="table-container">
             <table className="anime-table">
               <thead>
@@ -230,18 +258,10 @@ const AnimeWatchlistCMS = () => {
               </tbody>
             </table>
           </div>
-
-          {animeList.length === 0 && (
-            <div className="empty-state">
-              <div className="empty-icon">📺</div>
-              <h3>No anime in your watchlist</h3>
-              <p>Start adding anime to track your progress!</p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default AnimeWatchlistCMS;

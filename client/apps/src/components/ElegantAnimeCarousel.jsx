@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import "./ElegantAnimeCarousel.css";
-import { Link } from "react-router";
 
 const ElegantAnimeCarousel = ({
   animeData = [],
@@ -11,10 +10,11 @@ const ElegantAnimeCarousel = ({
   const [currentPage, setCurrentPage] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(6);
 
+  console.log(animeData, "<<< animeDataCarousel");
+
   // Calculate total pages
   const totalPages = Math.ceil(animeData.length / cardsPerView);
 
-  // Helper function to get year from aired_from if year is null
   const getDisplayYear = (anime) => {
     if (anime.year) return anime.year;
     if (anime.original?.aired_from) {
@@ -26,17 +26,42 @@ const ElegantAnimeCarousel = ({
     return "Unknown";
   };
 
-  useEffect(() => {
-    const updateCardsPerView = () => {
-      if (window.innerWidth < 850) {
-        setCardsPerView(2);
-      } else if (window.innerWidth < 1475) {
-        setCardsPerView(4);
-      } else {
-        setCardsPerView(6);
-      }
-    };
+  const updateCardsPerView = () => {
+    if (window.innerWidth < 850) {
+      setCardsPerView(2);
+    } else if (window.innerWidth < 1475) {
+      setCardsPerView(4);
+    } else {
+      setCardsPerView(6);
+    }
+  };
 
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const handleCardClick = (anime, e) => {
+    e.preventDefault();
+
+    // Open MAL page in new tab
+    if (anime) {
+      window.open(`https://myanimelist.net/anime/${anime}`, "_blank");
+    } else {
+      console.log("No MAL ID available for:", anime.title);
+    }
+  };
+
+  const getCurrentPageCards = () => {
+    const startIndex = currentPage * cardsPerView;
+    const endIndex = startIndex + cardsPerView;
+    return animeData.slice(startIndex, endIndex);
+  };
+
+  useEffect(() => {
     updateCardsPerView();
     window.addEventListener("resize", updateCardsPerView);
     return () => window.removeEventListener("resize", updateCardsPerView);
@@ -48,27 +73,6 @@ const ElegantAnimeCarousel = ({
       setCurrentPage(0);
     }
   }, [currentPage, totalPages]);
-
-  const nextPage = () => {
-    setCurrentPage((prev) => (prev + 1) % totalPages);
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-  };
-
-  const handleAddToWatchlist = (anime, e) => {
-    e.stopPropagation();
-    console.log("Added to watchlist:", anime.title);
-    // Add subtle feedback here
-  };
-
-  // Get current page cards
-  const getCurrentPageCards = () => {
-    const startIndex = currentPage * cardsPerView;
-    const endIndex = startIndex + cardsPerView;
-    return animeData.slice(startIndex, endIndex);
-  };
 
   return (
     <div className="elegant-anime-carousel">
@@ -106,7 +110,11 @@ const ElegantAnimeCarousel = ({
           {/* Cards Container */}
           <div className="cards-container">
             {getCurrentPageCards().map((anime, index) => (
-              <div key={index} className="elegant-card">
+              <div
+                key={anime.id || index}
+                className="elegant-card"
+                onClick={(e) => handleCardClick(anime.id, e)}
+              >
                 <div className="card-image-wrapper">
                   <img
                     src={
@@ -126,29 +134,6 @@ const ElegantAnimeCarousel = ({
                       <span className="rating">{anime.score}</span>
                     </div>
                   )}
-
-                  {/* Hover Overlay */}
-                  <div className="hover-overlay">
-                    <button
-                      className="watchlist-button"
-                      onClick={(e) => handleAddToWatchlist(anime, e)}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="none"
-                        />
-                      </svg>
-                      Add to Watchlist
-                    </button>
-                  </div>
                 </div>
 
                 {/* Card Info */}
@@ -168,7 +153,7 @@ const ElegantAnimeCarousel = ({
           </div>
         </div>
 
-        {/* Simple Page Indicators */}
+        {/* Page Indicators */}
         {totalPages > 1 && (
           <div className="page-indicators">
             {Array.from({ length: totalPages }).map((_, index) => (

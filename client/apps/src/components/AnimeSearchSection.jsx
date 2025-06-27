@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import LoadingSpinner from "./LoadingSpinner";
 import "./AnimeSearchSection.css";
-import { Link, useNavigate } from "react-router";
 
 const AnimeSearchSection = () => {
-  const token = localStorage.getItem("access_token");
-  const navigate = useNavigate();
   const [animeList, setAnimeList] = useState([]);
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,15 +22,8 @@ const AnimeSearchSection = () => {
   const [sortBy, setSortBy] = useState("id");
   const [sortOrder, setSortOrder] = useState("asc");
 
-  // Fetch genres on component mount
-  useEffect(() => {
-    fetchGenres();
-  }, []);
-
-  // Fetch anime whenever search params change
-  useEffect(() => {
-    fetchAnime();
-  }, [searchQuery, selectedGenre, sortBy, sortOrder, pagination.page]);
+  const token = localStorage.getItem("access_token");
+  const navigate = useNavigate();
 
   const fetchGenres = async () => {
     try {
@@ -49,7 +40,6 @@ const AnimeSearchSection = () => {
 
       // Build query parameters
       const params = new URLSearchParams();
-
       if (searchQuery) params.append("search", searchQuery);
       if (selectedGenre) params.append("filter", selectedGenre);
 
@@ -64,7 +54,7 @@ const AnimeSearchSection = () => {
       const response = await axios.get(
         `http://localhost:3000/pub/animes?${params}`
       );
-      console.log(response.data, "<<==fetchAnime");
+      console.log(response.data, "<<< fetchAnimeComponent");
 
       setAnimeList(response.data.data);
       setPagination((prev) => ({
@@ -74,6 +64,7 @@ const AnimeSearchSection = () => {
       }));
     } catch (error) {
       console.error("Error fetching anime:", error);
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -86,8 +77,7 @@ const AnimeSearchSection = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
-    fetchAnime();
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const handlePageChange = (newPage) => {
@@ -96,14 +86,12 @@ const AnimeSearchSection = () => {
 
   const handleSortChange = (field) => {
     if (sortBy === field) {
-      // Toggle order if same field
       setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
-      // New field, default to ascending
       setSortBy(field);
       setSortOrder("asc");
     }
-    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const clearFilters = () => {
@@ -115,46 +103,57 @@ const AnimeSearchSection = () => {
   };
 
   const handleAddToWatchlist = async (anime, e) => {
-    e.preventDefault(); // Prevent navigation when clicking watchlist button
+    e.preventDefault();
     e.stopPropagation();
-    // console.log("Added to watchlist:", anime.title);
-    // Add your watchlist logic here
+
+    if (!token) {
+      Swal.fire({
+        icon: "warning",
+        title: "Authentication Required",
+        text: "You need to login first before adding anime to your watchlist!",
+      });
+      navigate("/login");
+      return;
+    }
+
     try {
-      if (!token) {
-        navigate("/login");
-        Swal.fire({
-          icon: "warning",
-          title: "You are not logged in!",
-          text: `You need to login first before adding data to watch list!`,
-        });
-      } else {
-        const response = await axios({
-          method: "post",
-          url: `http://localhost:3000/animes/${anime.id}`,
+      const response = await axios.post(
+        `http://localhost:3000/animes/${anime.id}`,
+        {},
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        console.log(response.data, "<<< addToWatchlist");
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: `${anime.title} has been added to your watchlist!`,
-        });
-      }
+        }
+      );
+
+      console.log(response.data, "<<< handleAddToWatchList");
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: `${anime.title} has been added to your watchlist!`,
+      });
     } catch (error) {
-      console.log(error);
-      let message = "Something went wrong";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message || message;
-      }
+      console.error("Error adding to watchlist:", error);
+
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong",
       });
     }
   };
+
+  // Fetch genres on mount
+  useEffect(() => {
+    fetchGenres();
+  }, []);
+
+  // Fetch anime whenever search params change
+  useEffect(() => {
+    fetchAnime();
+  }, [searchQuery, selectedGenre, sortBy, sortOrder, pagination.page]);
 
   return (
     <section className="anime-search-section">
@@ -276,7 +275,6 @@ const AnimeSearchSection = () => {
                         </div>
                       )}
 
-                      {/* THIS IS THE NEW HOVER OVERLAY WITH WATCHLIST BUTTON */}
                       <div className="hover-overlay">
                         <button
                           className="watchlist-button"
@@ -298,7 +296,6 @@ const AnimeSearchSection = () => {
                           Add to Watchlist
                         </button>
                       </div>
-                      {/* END OF NEW HOVER OVERLAY */}
                     </div>
                     <div className="card-content">
                       <h3 className="anime-title">{anime.title}</h3>
