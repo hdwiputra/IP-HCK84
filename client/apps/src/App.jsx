@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import AnimeWatchlistCMS from "./pages/AnimeWatchlistCMS.jsx";
 import PutMyAnime from "./pages/PutMyAnime.jsx";
 import AnimeDetailsPage from "./pages/AnimeDetailsPage.jsx";
+import GenreSelectionPage from "./pages/GenreSelectionPage.jsx";
 
 export default function App() {
   return (
@@ -20,13 +21,12 @@ export default function App() {
           <Route element={<PubLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/animes/:id" element={<AnimeDetailsPage />} />
-            <Route path="/genres" element={<Home />} />
           </Route>
 
           <Route element={<MainLayout />}>
             <Route path="/my-animes" element={<AnimeWatchlistCMS />} />
             <Route path="/my-animes/:id" element={<PutMyAnime />} />
-            <Route path="/my-genres" element={<Home />} />
+            <Route path="/my-genres/" element={<GenreSelectionPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -8,6 +8,26 @@
   padding: 20px 0;
 }
 
+/* In your RegistrationPage.module.css */
+#buttonDiv {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+/* Make the iframe inside responsive */
+#buttonDiv iframe {
+  max-width: 100% !important;
+}
+
+.googleButtonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
 .backgroundPattern {
   position: absolute;
   top: 0;

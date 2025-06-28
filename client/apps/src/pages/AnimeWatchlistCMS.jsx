@@ -92,16 +92,6 @@ const AnimeWatchlistCMS = () => {
   };
 
   useEffect(() => {
-    if (!token) {
-      Swal.fire({
-        icon: "warning",
-        title: "Not Logged In",
-        text: "Please login to view your watchlist",
-      });
-      navigate("/login");
-      return;
-    }
-
     fetchMyAnime();
   }, [token, navigate]);
 

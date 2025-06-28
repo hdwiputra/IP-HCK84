@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Swal from "sweetalert2";
 import styles from "./css_modules/RegistrationPage.module.css";
+import http from "../lib/http";
 
 export default function RegistrationPage() {
   const [fullName, setFullName] = useState("");
@@ -13,31 +13,102 @@ export default function RegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  // Create floating shapes animation
   const createFloatingShapes = () => {
     const container = document.querySelector(`.${styles.floatingShapes}`);
-    if (container) {
-      for (let i = 0; i < 20; i++) {
-        const shape = document.createElement("div");
-        shape.className = styles.floatingShape;
-        shape.style.left = Math.random() * 100 + "%";
-        shape.style.animationDelay = Math.random() * 10 + "s";
-        shape.style.animationDuration = 10 + Math.random() * 20 + "s";
-        container.appendChild(shape);
-      }
+    if (!container) return;
+
+    for (let i = 0; i < 20; i++) {
+      const shape = document.createElement("div");
+      shape.className = styles.floatingShape;
+      shape.style.left = Math.random() * 100 + "%";
+      shape.style.animationDelay = Math.random() * 10 + "s";
+      shape.style.animationDuration = 10 + Math.random() * 20 + "s";
+      container.appendChild(shape);
     }
   };
 
-  useEffect(() => {
-    // Add fade-in effect
+  // Check if user is already logged in
+  const checkExistingToken = () => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      Swal.fire({
+        title: "Warning",
+        text: "You are already logged in!",
+        icon: "warning",
+      });
+      navigate("/");
+    }
+  };
+
+  // Handle Google OAuth response
+  const handleCredentialResponse = async (response) => {
+    try {
+      const res = await http.post("/login/google", {
+        googleToken: response.credential,
+      });
+
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      Swal.fire({
+        title: "Success",
+        text: "Account created successfully!",
+        icon: "success",
+      });
+
+      navigate("/");
+    } catch (error) {
+      console.error("Registration error:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.message || "Something went wrong!",
+        icon: "error",
+      });
+    }
+  };
+
+  // Initialize Google OAuth
+  const initializeGoogleAuth = () => {
+    const VITE_GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: VITE_GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById("buttonDiv"),
+        {
+          theme: "filled_black",
+          size: "large",
+          width: 500,
+          text: "signup_with",
+          shape: "pill",
+          logo_alignment: "left",
+        }
+      );
+    }
+  };
+
+  // Add fade-in animation
+  const addFadeInEffect = () => {
     const card = document.querySelector(`.${styles.registrationCard}`);
     setTimeout(() => {
       card?.classList.add(styles.fadeIn);
     }, 100);
+  };
 
-    // Create floating shapes
+  // Initialize component
+  useEffect(() => {
+    checkExistingToken();
+    initializeGoogleAuth();
+    addFadeInEffect();
     createFloatingShapes();
   }, []);
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -53,14 +124,12 @@ export default function RegistrationPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post("http://localhost:3000/register", {
+      const response = await http.post("/register", {
         fullName,
         username,
         email,
         password,
       });
-
-      console.log(response.data, "<<< postRegister");
 
       Swal.fire({
         title: "Success",
@@ -71,7 +140,6 @@ export default function RegistrationPage() {
       navigate("/login");
     } catch (error) {
       console.error("Registration error:", error);
-
       Swal.fire({
         title: "Error",
         text: error.response?.data?.message || "Something went wrong!",
@@ -194,27 +262,9 @@ export default function RegistrationPage() {
             <span className={styles.dividerText}>OR</span>
           </div>
 
-          <button className={styles.googleBtn}>
-            <svg width="20" height="20" viewBox="0 0 20 20" className="me-2">
-              <path
-                fill="#4285F4"
-                d="M19.6 10.23c0-.82-.07-1.43-.2-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"
-              />
-              <path
-                fill="#34A853"
-                d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M3.99 10c0-.69.12-1.35.32-1.97V5.51H1.07A9.973 9.973 0 000 10c0 1.61.39 3.14 1.07 4.49l3.24-2.52c-.2-.62-.32-1.28-.32-1.97z"
-              />
-              <path
-                fill="#EA4335"
-                d="M10 3.88c1.88 0 3.13.81 3.85 1.48l2.84-2.76C14.96.99 12.7 0 10 0 6.09 0 2.72 2.25 1.07 5.51l3.24 2.52C5.12 5.62 7.36 3.88 10 3.88z"
-              />
-            </svg>
-            Continue with Google
-          </button>
+          <div className={styles.googleButtonContainer}>
+            <div id="buttonDiv"></div>
+          </div>
 
           <div className={styles.cardFooter}>
             <p className={styles.signinLink}>

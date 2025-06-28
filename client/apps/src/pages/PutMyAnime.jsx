@@ -119,16 +119,6 @@ export default function PutMyAnime() {
   };
 
   useEffect(() => {
-    if (!token) {
-      Swal.fire({
-        title: "Authentication Required",
-        text: "Please login to access this page",
-        icon: "warning",
-      });
-      navigate("/login");
-      return;
-    }
-
     // Fetch anime data
     fetchMyAnimeId();
 

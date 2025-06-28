@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import "./HeroSection.css";
+import styles from "./css_modules/HeroSection.module.css";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,15 +26,15 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="hero-section">
+    <section className={styles.heroSection}>
       {/* Animated Background Elements */}
-      <div className="hero-background">
-        <div className="geometric-pattern"></div>
-        <div className="floating-particles">
+      <div className={styles.heroBackground}>
+        <div className={styles.geometricPattern}></div>
+        <div className={styles.floatingParticles}>
           {[...Array(20)].map((_, i) => (
             <div
               key={i}
-              className="particle"
+              className={styles.particle}
               style={{
                 left: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 10}s`,
@@ -43,24 +43,28 @@ const HeroSection = () => {
             ></div>
           ))}
         </div>
-        <div className="wave-overlay"></div>
+        <div className={styles.waveOverlay}></div>
       </div>
 
       <div className="container h-100">
         <div className="row h-100 align-items-center">
           <div className="col-lg-8 col-xl-7">
-            <div className={`hero-content ${isVisible ? "fade-in" : ""}`}>
+            <div
+              className={`${styles.heroContent} ${
+                isVisible ? styles.fadeIn : ""
+              }`}
+            >
               {/* Japanese Tagline */}
-              <div className="japanese-tagline">「私の視聴リスト」</div>
+              <div className={styles.japaneseTagline}>「私の視聴リスト」</div>
 
               {/* Main Title */}
-              <h1 className="hero-title">
-                <span className="title-ani">ANI</span>
-                <span className="title-track">TRACK+</span>
+              <h1 className={styles.heroTitle}>
+                <span className={styles.titleAni}>ANI</span>
+                <span className={styles.titleTrack}>TRACK+</span>
               </h1>
 
               {/* Description */}
-              <p className="hero-description">
+              <p className={styles.heroDescription}>
                 AniTrack+ is a personal project to help you keep track of your
                 favorite anime and manga. You can manage your progress and
                 discover new titles based on your preferences. Whether you're an
@@ -68,14 +72,17 @@ const HeroSection = () => {
               </p>
 
               {/* CTA Button */}
-              <div className="hero-cta">
-                <button className="btn cta-button" onClick={handleGetStarted}>
+              <div className={styles.heroCta}>
+                <button
+                  className={`btn ${styles.ctaButton}`}
+                  onClick={handleGetStarted}
+                >
                   Get Started
                 </button>
               </div>
 
               {/* Secondary Text */}
-              <p className="hero-secondary">
+              <p className={styles.heroSecondary}>
                 Join the community of fans and start building your watchlist
                 today!
               </p>
@@ -84,8 +91,12 @@ const HeroSection = () => {
 
           {/* Right Side Decoration */}
           <div className="col-lg-4 col-xl-5 d-none d-lg-block">
-            <div className="hero-decoration">
-              <svg className="anime-graphic" viewBox="0 0 400 400" fill="none">
+            <div className={styles.heroDecoration}>
+              <svg
+                className={styles.animeGraphic}
+                viewBox="0 0 400 400"
+                fill="none"
+              >
                 {/* Abstract anime-inspired shapes */}
                 <circle
                   cx="200"

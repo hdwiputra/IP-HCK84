@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import LoadingSpinner from "./LoadingSpinner";
-import "./AnimeSearchSection.css";
+import styles from "./css_modules/AnimeSearchSection.module.css";
 
 const AnimeSearchSection = () => {
   const [animeList, setAnimeList] = useState([]);
@@ -156,22 +156,22 @@ const AnimeSearchSection = () => {
   }, [searchQuery, selectedGenre, sortBy, sortOrder, pagination.page]);
 
   return (
-    <section className="anime-search-section">
+    <section className={styles.animeSearchSection}>
       <div className="container">
-        <h2 className="section-title">Explore Anime Collection</h2>
+        <h2 className={styles.sectionTitle}>Explore Anime Collection</h2>
 
         {/* Search and Filter Controls */}
-        <div className="search-controls">
-          <form onSubmit={handleSearchSubmit} className="search-form">
-            <div className="search-input-group">
+        <div className={styles.searchControls}>
+          <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
+            <div className={styles.searchInputGroup}>
               <input
                 type="text"
                 placeholder="Search anime titles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
+                className={styles.searchInput}
               />
-              <button type="submit" className="search-button">
+              <button type="submit" className={styles.searchButton}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z"
@@ -183,14 +183,14 @@ const AnimeSearchSection = () => {
             </div>
           </form>
 
-          <div className="filter-controls">
+          <div className={styles.filterControls}>
             <select
               value={selectedGenre}
               onChange={(e) => {
                 setSelectedGenre(e.target.value);
                 setPagination((prev) => ({ ...prev, page: 1 }));
               }}
-              className="filter-select"
+              className={styles.filterSelect}
             >
               <option value="">All Genres</option>
               {genres.map((genre) => (
@@ -200,24 +200,28 @@ const AnimeSearchSection = () => {
               ))}
             </select>
 
-            <div className="sort-controls">
+            <div className={styles.sortControls}>
               <label>Sort by:</label>
               <button
                 onClick={() => handleSortChange("title")}
-                className={`sort-button ${sortBy === "title" ? "active" : ""}`}
+                className={`${styles.sortButton} ${
+                  sortBy === "title" ? styles.active : ""
+                }`}
               >
                 Title {sortBy === "title" && (sortOrder === "asc" ? "↑" : "↓")}
               </button>
               <button
                 onClick={() => handleSortChange("score")}
-                className={`sort-button ${sortBy === "score" ? "active" : ""}`}
+                className={`${styles.sortButton} ${
+                  sortBy === "score" ? styles.active : ""
+                }`}
               >
                 Score {sortBy === "score" && (sortOrder === "asc" ? "↑" : "↓")}
               </button>
               <button
                 onClick={() => handleSortChange("aired_from")}
-                className={`sort-button ${
-                  sortBy === "aired_from" ? "active" : ""
+                className={`${styles.sortButton} ${
+                  sortBy === "aired_from" ? styles.active : ""
                 }`}
               >
                 Year{" "}
@@ -225,14 +229,17 @@ const AnimeSearchSection = () => {
               </button>
             </div>
 
-            <button onClick={clearFilters} className="clear-filters-button">
+            <button
+              onClick={clearFilters}
+              className={styles.clearFiltersButton}
+            >
               Clear Filters
             </button>
           </div>
         </div>
 
         {/* Results Info */}
-        <div className="results-info">
+        <div className={styles.resultsInfo}>
           <p>
             Showing {animeList.length} of {pagination.totalData} anime
             {searchQuery && ` for "${searchQuery}"`}
@@ -249,15 +256,15 @@ const AnimeSearchSection = () => {
         ) : (
           <>
             {/* Anime Grid */}
-            <div className="anime-grid">
+            <div className={styles.animeGrid}>
               {animeList.map((anime) => (
                 <Link
                   to={`/animes/${anime.id}`}
                   key={anime.id}
-                  className="anime-card-link"
+                  className={styles.animeCardLink}
                 >
-                  <div className="anime-card">
-                    <div className="card-image">
+                  <div className={styles.animeCard}>
+                    <div className={styles.cardImage}>
                       <img
                         src={
                           anime.image_url ||
@@ -270,14 +277,14 @@ const AnimeSearchSection = () => {
                         }}
                       />
                       {anime.score && (
-                        <div className="score-badge">
+                        <div className={styles.scoreBadge}>
                           <span>⭐ {anime.score}</span>
                         </div>
                       )}
 
-                      <div className="hover-overlay">
+                      <div className={styles.hoverOverlay}>
                         <button
-                          className="watchlist-button"
+                          className={styles.watchlistButton}
                           onClick={(e) => handleAddToWatchlist(anime, e)}
                         >
                           <svg
@@ -297,29 +304,29 @@ const AnimeSearchSection = () => {
                         </button>
                       </div>
                     </div>
-                    <div className="card-content">
-                      <h3 className="anime-title">{anime.title}</h3>
+                    <div className={styles.cardContent}>
+                      <h3 className={styles.animeTitle}>{anime.title}</h3>
                       {anime.title_english &&
                         anime.title_english !== anime.title && (
-                          <p className="anime-title-english">
+                          <p className={styles.animeTitleEnglish}>
                             {anime.title_english}
                           </p>
                         )}
-                      <div className="anime-meta">
-                        <span className="year">
+                      <div className={styles.animeMeta}>
+                        <span className={styles.year}>
                           {anime.year ||
                             (anime.aired_from
                               ? new Date(anime.aired_from).getFullYear()
                               : "Unknown")}
                         </span>
-                        <span className="episodes">
+                        <span className={styles.episodes}>
                           {anime.episodes} episodes
                         </span>
-                        <span className="status">{anime.status}</span>
+                        <span className={styles.status}>{anime.status}</span>
                       </div>
-                      <div className="anime-genres">
+                      <div className={styles.animeGenres}>
                         {anime.genre?.slice(0, 3).map((genre, index) => (
-                          <span key={index} className="genre-tag">
+                          <span key={index} className={styles.genreTag}>
                             {genre}
                           </span>
                         ))}
@@ -332,9 +339,12 @@ const AnimeSearchSection = () => {
 
             {/* No Results */}
             {animeList.length === 0 && (
-              <div className="no-results">
+              <div className={styles.noResults}>
                 <p>No anime found matching your criteria.</p>
-                <button onClick={clearFilters} className="clear-filters-button">
+                <button
+                  onClick={clearFilters}
+                  className={styles.clearFiltersButton}
+                >
                   Clear filters and try again
                 </button>
               </div>
@@ -342,16 +352,16 @@ const AnimeSearchSection = () => {
 
             {/* Pagination */}
             {pagination.totalPage > 1 && (
-              <div className="pagination">
+              <div className={styles.pagination}>
                 <button
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 1}
-                  className="pagination-button"
+                  className={styles.paginationButton}
                 >
                   Previous
                 </button>
 
-                <div className="pagination-info">
+                <div className={styles.paginationInfo}>
                   <span>
                     Page {pagination.page} of {pagination.totalPage}
                   </span>
@@ -360,7 +370,7 @@ const AnimeSearchSection = () => {
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.totalPage}
-                  className="pagination-button"
+                  className={styles.paginationButton}
                 >
                   Next
                 </button>

@@ -1,6 +1,7 @@
 const express = require("express");
 const { User, UserAnime, Anime, UserGenre, Genre } = require("../models");
 const { generateContent } = require("../helpers/gemini");
+const { Sequelize } = require("sequelize");
 
 class animeController {
   static async postMyAnimes(req, res, next) {
@@ -169,6 +170,23 @@ class animeController {
       next(error);
     }
   }
+  static async getMyGenres(req, res, next) {
+    try {
+      const UserId = req.user.id;
+      let genres = await UserGenre.findAll({
+        where: {
+          UserId,
+        },
+        include: [Genre],
+      });
+      if (genres.length === 0) {
+        throw { name: "Not Found", message: "Genres not found" };
+      }
+      res.status(200).json(genres);
+    } catch (error) {
+      next(error);
+    }
+  }
   static async postMyGenres(req, res, next) {
     try {
       const { id } = req.params;
@@ -191,170 +209,155 @@ class animeController {
       next(error);
     }
   }
+  static async deleteMyGenres(req, res, next) {
+    try {
+      const { id } = req.params;
+      const UserId = req.user.id;
 
-  // Optimized getRecommendations method
+      let genres = await UserGenre.findOne({
+        where: {
+          UserId,
+          GenreId: id,
+        },
+      });
+      if (!genres) {
+        throw { name: "Not Found", message: "Genres not found" };
+      }
+
+      await UserGenre.destroy({
+        where: {
+          UserId,
+          GenreId: id,
+        },
+      });
+      res.status(200).json({ message: "Genres deleted from favorite" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Replace your getRecommendations method with this:
   static async getRecommendations(req, res, next) {
     try {
-      const startTime = Date.now();
       const userId = req.user.id;
 
       // Get user's favorite genres
       const userGenres = await UserGenre.findAll({
         where: { UserId: userId },
-        include: [{ model: Genre, attributes: ["name"] }], // Only get name
-        attributes: ["GenreId"], // Minimize data transfer
+        include: [{ model: Genre, attributes: ["name"] }],
       });
 
       if (userGenres.length === 0) {
         return res.status(400).json({
-          message: "User has no favorite genres set",
+          message: "Please add some favorite genres first",
         });
       }
 
       const favoriteGenres = userGenres.map((ug) => ug.Genre.name);
-      console.log("User's favorite genres:", favoriteGenres);
 
-      // OPTIMIZATION 1: Pre-filter animes by genre in database
-      const { Op } = require("sequelize");
-
-      // Build genre matching conditions
-      const genreConditions = favoriteGenres.map((genre) => ({
-        genre: {
-          [Op.iLike]: `%${genre}%`,
-        },
-      }));
-
-      // Get a LIMITED set of relevant animes (not ALL)
-      const relevantAnimes = await Anime.findAll({
-        where: {
-          [Op.and]: [{ id: { [Op.gt]: 25 } }, { [Op.or]: genreConditions }],
-        },
-        attributes: ["id", "title", "genre", "score"], // Only needed fields
-        order: [["score", "DESC"]], // Pre-sort by score
-        limit: 50, // Only get top 50 matches, not all animes!
+      // Get ALL anime IDs and titles only (for the prompt)
+      const allAnimes = await Anime.findAll({
+        attributes: ["id", "title"],
+        raw: true,
       });
 
-      console.log(
-        `Found ${relevantAnimes.length} relevant animes (filtered from database)`
-      );
+      // Create ID list for Gemini
+      const animeListForPrompt = allAnimes.map((anime) => ({
+        id: anime.id,
+        title: anime.title,
+      }));
 
-      // If not enough genre matches, get some popular ones too
-      let animePool = [...relevantAnimes];
-      if (animePool.length < 20) {
-        const popularAnimes = await Anime.findAll({
-          where: {
-            id: {
-              [Op.and]: [
-                { [Op.gt]: 25 },
-                { [Op.notIn]: animePool.map((a) => a.id) }, // Exclude already selected
-              ],
-            },
-          },
-          attributes: ["id", "title", "genre", "score"],
-          order: [["popularity", "ASC"]], // Lower number = more popular
-          limit: 30,
-        });
-        animePool = [...animePool, ...popularAnimes];
-      }
-
-      // Always try to include anime 222 if it exists
-      if (!animePool.find((a) => a.id === 222)) {
-        const anime222 = await Anime.findByPk(222, {
-          attributes: ["id", "title", "genre", "score"],
-        });
-        if (anime222) animePool.push(anime222);
-      }
-
-      console.log(`Total anime pool size: ${animePool.length}`);
-
-      // OPTIMIZATION 2: Use simpler prompt with just IDs and genres
-      const animeList = animePool.map((a) => `${a.id}:${a.genre}`).join("\n");
-
-      const prompt = `Select 6 anime IDs that best match these genres: ${favoriteGenres.join(
+      const prompt = `Based on a user who likes these genres: ${favoriteGenres.join(
         ", "
       )}
 
-Animes (format id:genres):
-${animeList}
+Select exactly 6 anime IDs from this list that best match their preferences:
+${JSON.stringify(animeListForPrompt, null, 2)}
 
-Rules:
-- Return ONLY a JSON array of 6 numbers
-- Include ID 222 if present
-- Vary selections each time
-- Example: [26,47,89,123,178,222]`;
-
-      console.log(
-        `Prompt size: ${prompt.length} characters (was: ${
-          JSON.stringify(animePool).length
-        })`
-      );
+Return only the numeric IDs as an array.`;
 
       try {
-        // Try AI recommendation
-        console.log("Calling Gemini API...");
-        const aiStartTime = Date.now();
         const content = await generateContent(prompt);
-        console.log(`Gemini responded in ${Date.now() - aiStartTime}ms`);
+        console.log("Gemini raw response:", content);
 
-        // Parse response more efficiently
-        let recommendedIds = [];
-        const numbers = content.match(/\d+/g);
-        if (numbers) {
-          recommendedIds = numbers
-            .map(Number)
-            .filter(
-              (id) => animePool.find((a) => a.id === id) // Validate IDs exist in our pool
-            )
-            .slice(0, 6);
+        // Since responseSchema is set to return JSON array, content should already be a JSON string
+        let recommendedIds;
+
+        // Try to parse the response
+        try {
+          recommendedIds = JSON.parse(content);
+          console.log("Parsed IDs:", recommendedIds);
+        } catch (parseError) {
+          console.error("JSON Parse error:", parseError);
+          console.log("Raw content that failed to parse:", content);
+          throw parseError;
         }
 
-        if (recommendedIds.length === 6) {
-          // Get full anime data for recommendations
-          const recommendedAnimes = await Anime.findAll({
-            where: { id: recommendedIds },
-          });
+        // Validate that we got an array of numbers
+        if (!Array.isArray(recommendedIds) || recommendedIds.length === 0) {
+          throw new Error("Invalid response format from Gemini");
+        }
 
-          console.log(`Total execution time: ${Date.now() - startTime}ms`);
+        // Ensure all IDs are valid numbers
+        recommendedIds = recommendedIds.filter(
+          (id) => typeof id === "number" && !isNaN(id)
+        );
 
+        // Now fetch FULL anime data for the recommended IDs
+        const recommendedAnimes = await Anime.findAll({
+          where: {
+            id: recommendedIds,
+          },
+          // This will get ALL fields needed for your cards!
+        });
+
+        return res.status(200).json({
+          recommendations: recommendedAnimes,
+          basedOnGenres: favoriteGenres,
+          method: "gemini",
+        });
+      } catch (error) {
+        console.error("Gemini processing error:", error);
+
+        // Fallback: get random animes matching user's genres
+        const genreIds = userGenres.map((ug) => ug.GenreId);
+
+        // Try to get animes that match user's favorite genres
+        const genreMatchedAnimes = await Anime.findAll({
+          include: [
+            {
+              model: Genre,
+              where: { id: genreIds },
+              through: { attributes: [] },
+            },
+          ],
+          order: Sequelize.literal("RANDOM()"),
+          limit: 6,
+          distinct: true,
+        });
+
+        // If we found genre-matched animes, use them
+        if (genreMatchedAnimes.length > 0) {
           return res.status(200).json({
-            recommendations: recommendedAnimes,
+            recommendations: genreMatchedAnimes,
             basedOnGenres: favoriteGenres,
-            count: recommendedAnimes.length,
-            method: "ai-powered-optimized",
-            executionTime: `${Date.now() - startTime}ms`,
+            method: "fallback-genre-matched",
           });
         }
-      } catch (geminiError) {
-        console.error("Gemini error:", geminiError.message);
+
+        // Final fallback: just random animes
+        const randomAnimes = await Anime.findAll({
+          order: Sequelize.literal("RANDOM()"),
+          limit: 6,
+        });
+
+        return res.status(200).json({
+          recommendations: randomAnimes,
+          basedOnGenres: favoriteGenres,
+          method: "fallback-random",
+        });
       }
-
-      // FALLBACK: Fast random selection from pre-filtered pool
-      console.log("Using optimized fallback...");
-
-      // Shuffle and take 6
-      const shuffled = animePool.sort(() => 0.5 - Math.random());
-      let selectedIds = shuffled.slice(0, 6).map((a) => a.id);
-
-      // Ensure anime 222 is included if it exists
-      if (animePool.find((a) => a.id === 222) && !selectedIds.includes(222)) {
-        selectedIds[5] = 222;
-      }
-
-      const recommendedAnimes = await Anime.findAll({
-        where: { id: selectedIds },
-      });
-
-      console.log(`Total execution time: ${Date.now() - startTime}ms`);
-
-      res.status(200).json({
-        recommendations: recommendedAnimes,
-        basedOnGenres: favoriteGenres,
-        count: recommendedAnimes.length,
-        method: "optimized-fallback",
-        executionTime: `${Date.now() - startTime}ms`,
-      });
     } catch (error) {
-      console.error("Recommendation error:", error);
       next(error);
     }
   }
