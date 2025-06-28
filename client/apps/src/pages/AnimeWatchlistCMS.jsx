@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import axios from "axios";
+import http from "../lib/http";
 import Swal from "sweetalert2";
 import styles from "./css_modules/AnimeWatchlistCMS.module.css";
 
@@ -15,7 +15,7 @@ const AnimeWatchlistCMS = () => {
   const fetchMyAnime = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:3000/animes/", {
+      const response = await http.get("/animes/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -37,14 +37,11 @@ const AnimeWatchlistCMS = () => {
 
   const handleDelete = async (animeId) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:3000/animes/${animeId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await http.delete(`/animes/${animeId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log(response.data, "<<< handleDelete");
 
       Swal.fire({

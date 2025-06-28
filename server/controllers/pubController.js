@@ -49,17 +49,19 @@ class PubController {
       let pageNumber = 1; // default page number
 
       if (page) {
-        if (page.size) {
-          // Ensure pageSize is at least 1 and max 100 (to prevent abuse)
-          pageSize = Math.max(1, Math.min(100, parseInt(page.size) || 10));
-          filterQuery.limit = pageSize;
+        // Handle page size
+        const size = parseInt(page.size);
+        if (!isNaN(size)) {
+          pageSize = Math.max(1, Math.min(100, size));
         }
 
-        if (page.number) {
-          // Ensure pageNumber is at least 1
-          pageNumber = Math.max(1, parseInt(page.number) || 1);
-          filterQuery.offset = pageSize * (pageNumber - 1);
+        const number = parseInt(page.number);
+        if (!isNaN(number)) {
+          pageNumber = Math.max(1, number);
         }
+
+        filterQuery.limit = pageSize;
+        filterQuery.offset = pageSize * (pageNumber - 1);
       }
 
       const { count, rows } = await Anime.findAndCountAll(filterQuery);

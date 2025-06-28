@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import axios from "axios";
+import http from "../lib/http";
 import Swal from "sweetalert2";
 import LoadingSpinner from "./LoadingSpinner";
 import styles from "./css_modules/AnimeSearchSection.module.css";
@@ -27,7 +27,7 @@ const AnimeSearchSection = () => {
 
   const fetchGenres = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/pub/genres");
+      const response = await http.get("/pub/genres");
       setGenres(response.data);
     } catch (error) {
       console.error("Error fetching genres:", error);
@@ -51,9 +51,7 @@ const AnimeSearchSection = () => {
       params.append("page[number]", pagination.page);
       params.append("page[size]", pagination.dataPerPage);
 
-      const response = await axios.get(
-        `http://localhost:3000/pub/animes?${params}`
-      );
+      const response = await http.get(`/pub/animes?${params}`);
       console.log(response.data, "<<< fetchAnimeComponent");
 
       setAnimeList(response.data.data);
@@ -117,8 +115,8 @@ const AnimeSearchSection = () => {
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost:3000/animes/${anime.id}`,
+      const response = await http.post(
+        `/animes/${anime.id}`,
         {},
         {
           headers: {

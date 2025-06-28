@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import http from "../lib/http";
 import Swal from "sweetalert2";
 import HeroSection from "../components/HeroSection";
 import ElegantAnimeCarousel from "../components/ElegantAnimeCarousel";
@@ -45,14 +45,11 @@ export default function Home() {
 
     try {
       setLoadingRecommendations(true);
-      const response = await axios.get(
-        "http://localhost:3000/animes/recommendation",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await http.get("/animes/recommendation", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       console.log(response.data, "<<< setLoadingReccomendations");
 
@@ -78,9 +75,7 @@ export default function Home() {
   const fetchAnime = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "http://localhost:3000/pub/animes/popular"
-      );
+      const response = await http.get("/pub/animes/popular");
 
       console.log(response.data, "<<< fetchAnime");
 

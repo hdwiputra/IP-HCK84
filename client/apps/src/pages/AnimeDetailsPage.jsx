@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import http from "../lib/http";
 import Swal from "sweetalert2";
 import styles from "./css_modules/AnimeDetailsPage.module.css";
 
@@ -17,9 +17,7 @@ const AnimeDetailsPage = () => {
   const fetchAnime = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `http://localhost:3000/pub/animes/${id}`
-      );
+      const response = await http.get(`/pub/animes/${id}`);
       setAnime(response.data);
       setIsVisible(true);
     } catch (err) {
@@ -72,8 +70,8 @@ const AnimeDetailsPage = () => {
     }
 
     try {
-      await axios.post(
-        `http://localhost:3000/animes/${anime.id}`,
+      await http.post(
+        `/animes/${anime.id}`,
         {},
         {
           headers: {

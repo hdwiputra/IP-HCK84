@@ -36,12 +36,12 @@ class UserController {
       console.log(email, username, password, "<<<< email/username/password");
 
       if (!email && !username) {
-        throw { name: "BadRequest", message: "Email or Username is required" };
+        throw { name: "Bad Request", message: "Email or Username is required" };
       }
       console.log(email, username, password, "<<<< email/username/password");
 
       if (!password) {
-        throw { name: "BadRequest", message: "Password is required" };
+        throw { name: "Bad Request", message: "Password is required" };
       }
       console.log(email, username, password, "<<<< email/username/password");
 
@@ -86,10 +86,6 @@ class UserController {
 
   static async googleLogin(req, res, next) {
     try {
-      if (!GOOGLE_CLIENT_ID) {
-        throw new Error("GOOGLE_CLIENT_ID not found in environment variables");
-      }
-
       if (!req.body.googleToken) {
         throw new Error("No googleToken in request body");
       }

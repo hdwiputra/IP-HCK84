@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import http from "../lib/http";
 import Swal from "sweetalert2";
 import styles from "./css_modules/RegistrationPage.module.css";
 
@@ -37,7 +37,7 @@ export default function PutMyAnime() {
 
     try {
       setIsLoading(true);
-      const response = await axios.get(`http://localhost:3000/animes/${id}`, {
+      const response = await http.get(`/animes/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -81,8 +81,8 @@ export default function PutMyAnime() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.put(
-        `http://localhost:3000/animes/${id}`,
+      const response = await http.put(
+        `/animes/${id}`,
         {
           score: score ? parseInt(score) : null,
           episodes_watched: episodesWatched ? parseInt(episodesWatched) : 0,

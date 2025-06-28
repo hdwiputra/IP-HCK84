@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import styles from "./css_modules/GenreSelectionPage.module.css";
-import axios from "axios";
+import http from "../lib/http";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router";
 
@@ -17,9 +17,9 @@ const GenreSelectionPage = () => {
 
   const fetchGenres = async () => {
     try {
-      const response = await axios({
+      const response = await http({
         method: "GET",
-        url: "http://localhost:3000/pub/genres",
+        url: "/pub/genres",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -38,9 +38,9 @@ const GenreSelectionPage = () => {
 
   const fetchMyGenres = async () => {
     try {
-      const response = await axios({
+      const response = await http({
         method: "GET",
-        url: "http://localhost:3000/animes/genres",
+        url: "/animes/genres",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,9 +69,9 @@ const GenreSelectionPage = () => {
       // Add to loading state (this shows the spinner)
       setLoadingGenres((prev) => new Set([...prev, genre.id]));
 
-      const response = await axios({
+      const response = await http({
         method: "POST",
-        url: `http://localhost:3000/animes/genres/${genre.id}`, // Fixed the URL
+        url: `/animes/genres/${genre.id}`, // Fixed the URL
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -114,9 +114,9 @@ const GenreSelectionPage = () => {
     try {
       setLoadingGenres((prev) => new Set([...prev, genre.id]));
 
-      const response = await axios({
+      const response = await http({
         method: "DELETE",
-        url: `http://localhost:3000/animes/genres/${genre.id}`,
+        url: `/animes/genres/${genre.id}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },

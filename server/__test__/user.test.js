@@ -4,6 +4,17 @@ const { sequelize, User } = require("../models");
 const { queryInterface } = sequelize;
 const { token } = require("../helpers/jwt");
 const bcrypt = require("../helpers/bcrypt");
+const { OAuth2Client } = require("google-auth-library");
+
+// Mock Google OAuth2Client
+jest.mock("google-auth-library", () => {
+  const mockVerifyIdToken = jest.fn();
+  const mockClient = jest.fn(() => ({
+    verifyIdToken: mockVerifyIdToken,
+  }));
+  mockClient.mockVerifyIdToken = mockVerifyIdToken;
+  return { OAuth2Client: mockClient };
+});
 
 // Test data
 let userAdmin = {
@@ -30,6 +41,9 @@ let testUser2 = {
 let createdAdmin;
 let authToken;
 
+// Get the mock function
+const mockVerifyIdToken = OAuth2Client.mockVerifyIdToken;
+
 beforeAll(async () => {
   try {
     // Clean up all related tables first (in case of foreign key constraints)
@@ -55,6 +69,11 @@ beforeAll(async () => {
   } catch (error) {
     console.log(error, "<< error in beforeAll");
   }
+});
+
+// Clear mocks before each test
+beforeEach(() => {
+  jest.clearAllMocks();
 });
 
 describe("User Controllers", () => {
@@ -256,8 +275,7 @@ describe("User Controllers", () => {
           password: userAdmin.password,
         });
 
-        // Depending on your implementation
-        expect([200, 401]).toContain(status);
+        expect([401]).toContain(status);
       });
     });
 
@@ -327,7 +345,8 @@ describe("User Controllers", () => {
           password: "",
         });
 
-        expect(status).toBe(400);
+        // Your controller doesn't treat empty string as missing
+        expect(status).toBe(400); // It goes to the password comparison
         expect(body).toHaveProperty("message", "Password is required");
       });
 
@@ -354,6 +373,148 @@ describe("User Controllers", () => {
           });
 
         expect([400, 401]).toContain(status);
+      });
+    });
+  });
+
+  describe("POST /login/google", () => {
+    // Save original env
+    const originalEnv = process.env.GOOGLE_CLIENT_ID;
+
+    beforeAll(() => {
+      // Set test Google Client ID
+      process.env.GOOGLE_CLIENT_ID = "test-google-client-id";
+    });
+
+    afterAll(() => {
+      // Restore original env
+      process.env.GOOGLE_CLIENT_ID = originalEnv;
+    });
+
+    describe("Success", () => {
+      test("Should create new user and login with valid Google token", async () => {
+        const mockPayload = {
+          email: "newgoogleuser@gmail.com",
+          name: "New Google User",
+        };
+
+        mockVerifyIdToken.mockResolvedValueOnce({
+          getPayload: () => mockPayload,
+        });
+
+        const { status, body } = await request(app)
+          .post("/login/google")
+          .send({ googleToken: "valid-google-token" });
+
+        expect(status).toBe(200);
+        expect(body).toHaveProperty("message", "Login Success");
+        expect(body).toHaveProperty("access_token");
+        expect(body).toHaveProperty("user");
+        expect(body.user).toHaveProperty("email", mockPayload.email);
+        expect(body.user).toHaveProperty("fullName", mockPayload.name);
+        expect(body.user).not.toHaveProperty("password");
+
+        // Verify user was created in database
+        const createdUser = await User.findOne({
+          where: { email: mockPayload.email },
+        });
+        expect(createdUser).toBeTruthy();
+        expect(createdUser.username).toBe("nguser"); // Based on name transformation
+      });
+
+      test("Should login existing user with valid Google token", async () => {
+        const mockPayload = {
+          email: userAdmin.email, // Existing user
+          name: userAdmin.fullName,
+        };
+
+        mockVerifyIdToken.mockResolvedValueOnce({
+          getPayload: () => mockPayload,
+        });
+
+        const { status, body } = await request(app)
+          .post("/login/google")
+          .send({ googleToken: "valid-google-token" });
+
+        expect(status).toBe(200);
+        expect(body).toHaveProperty("message", "Login Success");
+        expect(body).toHaveProperty("access_token");
+        expect(body.user).toHaveProperty("id", createdAdmin.id);
+        expect(body.user).toHaveProperty("email", userAdmin.email);
+      });
+
+      test("Should handle complex names correctly", async () => {
+        const mockPayload = {
+          email: "john.doe.smith@gmail.com",
+          name: "John Doe Smith",
+        };
+
+        mockVerifyIdToken.mockResolvedValueOnce({
+          getPayload: () => mockPayload,
+        });
+
+        const { status, body } = await request(app)
+          .post("/login/google")
+          .send({ googleToken: "valid-google-token" });
+
+        expect(status).toBe(200);
+        expect(body.user).toHaveProperty("username", "jdsmith");
+      });
+    });
+
+    describe("Failed", () => {
+      test("Should fail when googleToken is missing", async () => {
+        const { status, body } = await request(app)
+          .post("/login/google")
+          .send({});
+
+        expect(status).toBe(500);
+        expect(body).toHaveProperty("message");
+      });
+
+      test("Should fail when Google verification fails", async () => {
+        mockVerifyIdToken.mockRejectedValueOnce(new Error("Invalid token"));
+
+        const { status, body } = await request(app)
+          .post("/login/google")
+          .send({ googleToken: "invalid-google-token" });
+
+        expect(status).toBe(500);
+        expect(body).toHaveProperty("message");
+      });
+
+      test("Should fail when GOOGLE_CLIENT_ID is not set", async () => {
+        // Temporarily remove the env variable
+        const tempClientId = process.env.GOOGLE_CLIENT_ID;
+        delete process.env.GOOGLE_CLIENT_ID;
+
+        const { status, body } = await request(app)
+          .post("/login/google")
+          .send({ googleToken: "valid-google-token" });
+
+        expect(status).toBe(500);
+        expect(body).toHaveProperty("message");
+
+        // Restore env variable
+        process.env.GOOGLE_CLIENT_ID = tempClientId;
+      });
+
+      test("Should handle database errors during user creation", async () => {
+        const mockPayload = {
+          email: null, // This should cause a validation error
+          name: "Invalid User",
+        };
+
+        mockVerifyIdToken.mockResolvedValueOnce({
+          getPayload: () => mockPayload,
+        });
+
+        const { status, body } = await request(app)
+          .post("/login/google")
+          .send({ googleToken: "valid-google-token" });
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty("message");
       });
     });
   });

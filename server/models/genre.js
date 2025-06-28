@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           notNull: { msg: "Icon is required" },
-          isInt: { msg: "Icon must be an integer" },
+          notEmpty: { msg: "Icon is required" },
         },
       },
       description: {
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           notNull: { msg: "Description is required" },
-          isInt: { msg: "Description must be an integer" },
+          notEmpty: { msg: "Description is required" },
         },
       },
     },
