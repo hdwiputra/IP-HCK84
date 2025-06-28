@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import styles from "./css_modules/GenreSelectionPage.module.css";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
 
 const GenreSelectionPage = () => {
   const [genres, setGenres] = useState([]);
   const [addedGenres, setAddedGenres] = useState(new Set());
   const [loadingGenres, setLoadingGenres] = useState(new Set());
   const [isVisible, setIsVisible] = useState(false);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("access_token");
 
@@ -165,6 +167,7 @@ const GenreSelectionPage = () => {
     }
 
     // Navigate to next page - you can add your navigation logic here
+    navigate("/");
     console.log("Continuing with genres:", Array.from(addedGenres));
     // Example: navigate('/next-page') or window.location.href = '/next-page'
   };

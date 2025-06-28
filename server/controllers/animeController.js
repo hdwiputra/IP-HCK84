@@ -247,11 +247,11 @@ class animeController {
         include: [{ model: Genre, attributes: ["name"] }],
       });
 
-      if (userGenres.length === 0) {
-        return res.status(400).json({
-          message: "Please add some favorite genres first",
-        });
-      }
+      // if (userGenres.length === 0) {
+      //   return res.status(400).json({
+      //     message: "Please add some favorite genres first",
+      //   });
+      // }
 
       const favoriteGenres = userGenres.map((ug) => ug.Genre.name);
 
@@ -318,33 +318,6 @@ Return only the numeric IDs as an array.`;
         });
       } catch (error) {
         console.error("Gemini processing error:", error);
-
-        // Fallback: get random animes matching user's genres
-        const genreIds = userGenres.map((ug) => ug.GenreId);
-
-        // Try to get animes that match user's favorite genres
-        const genreMatchedAnimes = await Anime.findAll({
-          include: [
-            {
-              model: Genre,
-              where: { id: genreIds },
-              through: { attributes: [] },
-            },
-          ],
-          order: Sequelize.literal("RANDOM()"),
-          limit: 6,
-          distinct: true,
-        });
-
-        // If we found genre-matched animes, use them
-        if (genreMatchedAnimes.length > 0) {
-          return res.status(200).json({
-            recommendations: genreMatchedAnimes,
-            basedOnGenres: favoriteGenres,
-            method: "fallback-genre-matched",
-          });
-        }
-
         // Final fallback: just random animes
         const randomAnimes = await Anime.findAll({
           order: Sequelize.literal("RANDOM()"),

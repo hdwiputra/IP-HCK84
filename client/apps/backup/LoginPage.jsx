@@ -1,17 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 import styles from "./css_modules/RegistrationPage.module.css";
-import { loginUser, loginWithGoogle, clearError } from "../store/authSlice";
-import { useAuth } from "../hooks/useAuth";
+import http from "../lib/http";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const dispatch = useDispatch();
-  const { isAuthenticated, loading, error } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   // Create floating shapes animation
@@ -29,22 +25,43 @@ export default function LoginPage() {
     }
   };
 
+  // Check if user is already logged in
+  const checkExistingToken = () => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      Swal.fire({
+        title: "Warning",
+        text: "You are already logged in!",
+        icon: "warning",
+      });
+      navigate("/");
+    }
+  };
+
   // Handle Google OAuth response
   const handleCredentialResponse = async (response) => {
     try {
-      const result = await dispatch(loginWithGoogle(response.credential));
+      const res = await http.post("/login/google", {
+        googleToken: response.credential,
+      });
 
-      if (loginWithGoogle.fulfilled.match(result)) {
-        Swal.fire({
-          title: "Success",
-          text: "Login successful!",
-          icon: "success",
-        });
-        navigate("/");
-      }
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      Swal.fire({
+        title: "Success",
+        text: "Login successful!",
+        icon: "success",
+      });
+
+      navigate("/");
     } catch (error) {
-      // Error is already handled in Redux, but we can show additional UI feedback here
-      console.error("Google login error:", error);
+      console.error("Login error:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.message || "Something went wrong!",
+        icon: "error",
+      });
     }
   };
 
@@ -82,57 +99,45 @@ export default function LoginPage() {
 
   // Initialize component
   useEffect(() => {
-    // Check if user is already logged in using Redux state
-    if (isAuthenticated) {
-      Swal.fire({
-        title: "Warning",
-        text: "You are already logged in!",
-        icon: "warning",
-      });
-      navigate("/");
-      return;
-    }
-
+    checkExistingToken();
     initializeGoogleAuth();
     addFadeInEffect();
     createFloatingShapes();
-
-    // Clear any previous errors when component mounts
-    dispatch(clearError());
-  }, [isAuthenticated, navigate, dispatch]);
-
-  // Show error messages from Redux state
-  useEffect(() => {
-    if (error) {
-      Swal.fire({
-        title: "Error",
-        text: error,
-        icon: "error",
-      });
-      // Clear the error after showing it
-      dispatch(clearError());
-    }
-  }, [error, dispatch]);
+  }, []);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      const result = await dispatch(loginUser({ email, password }));
+      // Check if input is email or username
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const body = isEmail
+        ? { email, password }
+        : { username: email, password };
 
-      if (loginUser.fulfilled.match(result)) {
-        Swal.fire({
-          title: "Success",
-          text: "Login successful!",
-          icon: "success",
-        });
-        navigate("/");
-      }
-      // If the action was rejected, the error will be handled by the useEffect above
+      const response = await http.post("/login", body);
+
+      localStorage.setItem("access_token", response.data.access_token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      Swal.fire({
+        title: "Success",
+        text: "Login successful!",
+        icon: "success",
+      });
+
+      navigate("/");
     } catch (error) {
-      // This shouldn't happen with Redux Toolkit, but just in case
-      console.error("Unexpected login error:", error);
+      console.error("Login error:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.message || "Something went wrong!",
+        icon: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,7 +179,6 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={loading} // Disable input during loading
               />
             </div>
 
@@ -187,16 +191,15 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={loading} // Disable input during loading
               />
             </div>
 
             <button
               type="submit"
               className={styles.createAccountBtn}
-              disabled={loading} // Use Redux loading state
+              disabled={isSubmitting}
             >
-              {loading ? "Logging in..." : "Login"}
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
 

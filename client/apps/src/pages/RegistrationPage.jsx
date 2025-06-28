@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 import styles from "./css_modules/RegistrationPage.module.css";
-import http from "../lib/http";
+import {
+  registerUser,
+  loginWithGoogle,
+  clearError,
+  clearRegistrationSuccess,
+} from "../store/authSlice";
+import { useAuth } from "../hooks/useAuth";
 
 export default function RegistrationPage() {
   const [fullName, setFullName] = useState("");
@@ -10,7 +17,9 @@ export default function RegistrationPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading, error, registrationSuccess } = useAuth();
   const navigate = useNavigate();
 
   // Create floating shapes animation
@@ -28,43 +37,21 @@ export default function RegistrationPage() {
     }
   };
 
-  // Check if user is already logged in
-  const checkExistingToken = () => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      Swal.fire({
-        title: "Warning",
-        text: "You are already logged in!",
-        icon: "warning",
-      });
-      navigate("/");
-    }
-  };
-
   // Handle Google OAuth response
   const handleCredentialResponse = async (response) => {
     try {
-      const res = await http.post("/login/google", {
-        googleToken: response.credential,
-      });
+      const result = await dispatch(loginWithGoogle(response.credential));
 
-      localStorage.setItem("access_token", res.data.access_token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-
-      Swal.fire({
-        title: "Success",
-        text: "Account created successfully!",
-        icon: "success",
-      });
-
-      navigate("/");
+      if (loginWithGoogle.fulfilled.match(result)) {
+        Swal.fire({
+          title: "Success",
+          text: "Account created successfully!",
+          icon: "success",
+        });
+        navigate("/");
+      }
     } catch (error) {
-      console.error("Registration error:", error);
-      Swal.fire({
-        title: "Error",
-        text: error.response?.data?.message || "Something went wrong!",
-        icon: "error",
-      });
+      console.error("Google registration error:", error);
     }
   };
 
@@ -102,11 +89,50 @@ export default function RegistrationPage() {
 
   // Initialize component
   useEffect(() => {
-    checkExistingToken();
+    // Check if user is already logged in using Redux state
+    if (isAuthenticated) {
+      Swal.fire({
+        title: "Warning",
+        text: "You are already logged in!",
+        icon: "warning",
+      });
+      navigate("/");
+      return;
+    }
+
     initializeGoogleAuth();
     addFadeInEffect();
     createFloatingShapes();
-  }, []);
+
+    // Clear any previous errors when component mounts
+    dispatch(clearError());
+    dispatch(clearRegistrationSuccess());
+  }, [isAuthenticated, navigate, dispatch]);
+
+  // Handle registration success
+  useEffect(() => {
+    if (registrationSuccess) {
+      Swal.fire({
+        title: "Success",
+        text: "Account created successfully!",
+        icon: "success",
+      });
+      navigate("/login");
+    }
+  }, [registrationSuccess, navigate]);
+
+  // Show error messages from Redux state
+  useEffect(() => {
+    if (error) {
+      Swal.fire({
+        title: "Error",
+        text: error,
+        icon: "error",
+      });
+      // Clear the error after showing it
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -121,32 +147,21 @@ export default function RegistrationPage() {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      const response = await http.post("/register", {
-        fullName,
-        username,
-        email,
-        password,
-      });
+      const result = await dispatch(
+        registerUser({
+          fullName,
+          username,
+          email,
+          password,
+        })
+      );
 
-      Swal.fire({
-        title: "Success",
-        text: "Account created successfully!",
-        icon: "success",
-      });
-
-      navigate("/login");
+      // Success is handled by the useEffect above
+      // Error is also handled by the useEffect above
     } catch (error) {
-      console.error("Registration error:", error);
-      Swal.fire({
-        title: "Error",
-        text: error.response?.data?.message || "Something went wrong!",
-        icon: "error",
-      });
-    } finally {
-      setIsSubmitting(false);
+      // This shouldn't happen with Redux Toolkit, but just in case
+      console.error("Unexpected registration error:", error);
     }
   };
 
@@ -188,6 +203,7 @@ export default function RegistrationPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
+                disabled={loading} // Disable input during loading
               />
             </div>
 
@@ -200,6 +216,7 @@ export default function RegistrationPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                disabled={loading} // Disable input during loading
               />
             </div>
 
@@ -212,6 +229,7 @@ export default function RegistrationPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading} // Disable input during loading
               />
             </div>
 
@@ -224,6 +242,7 @@ export default function RegistrationPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading} // Disable input during loading
               />
             </div>
 
@@ -235,6 +254,7 @@ export default function RegistrationPage() {
                   id="terms"
                   checked={agreeToTerms}
                   onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  disabled={loading} // Disable input during loading
                 />
                 <label className={styles.formCheckLabel} htmlFor="terms">
                   I agree to the{" "}
@@ -252,9 +272,9 @@ export default function RegistrationPage() {
             <button
               type="submit"
               className={styles.createAccountBtn}
-              disabled={isSubmitting}
+              disabled={loading} // Use Redux loading state
             >
-              {isSubmitting ? "Creating Account..." : "Create Account"}
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
 
