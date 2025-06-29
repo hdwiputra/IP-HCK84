@@ -799,14 +799,16 @@ describe("Anime Controllers", () => {
         expect(body).toHaveProperty("method", "fallback-random");
       });
 
-      test("Should work even without favorite genres", async () => {
+      test("Should return 400 without favorite genres", async () => {
         const { status, body } = await request(app)
           .get("/animes/recommendation")
           .set("Authorization", `Bearer ${authToken2}`);
 
-        expect(status).toBe(200);
-        expect(body).toHaveProperty("recommendations");
-        expect(body.basedOnGenres).toEqual([]);
+        expect(status).toBe(400);
+        expect(body).toHaveProperty(
+          "message",
+          "Please add some favorite genres first"
+        );
       });
     });
 

@@ -247,11 +247,11 @@ class animeController {
         include: [{ model: Genre, attributes: ["name"] }],
       });
 
-      // if (userGenres.length === 0) {
-      //   return res.status(400).json({
-      //     message: "Please add some favorite genres first",
-      //   });
-      // }
+      if (userGenres.length === 0) {
+        return res.status(400).json({
+          message: "Please add some favorite genres first",
+        });
+      }
 
       const favoriteGenres = userGenres.map((ug) => ug.Genre.name);
 
