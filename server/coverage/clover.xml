@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1751175818271" clover="3.2.0">
-  <project timestamp="1751175818271" name="All files">
-    <metrics statements="406" coveredstatements="387" conditionals="117" coveredconditionals="105" methods="42" coveredmethods="41" elements="565" coveredelements="533" complexity="0" loc="406" ncloc="406" packages="6" files="18" classes="18"/>
+<coverage generated="1751321899211" clover="3.2.0">
+  <project timestamp="1751321899211" name="All files">
+    <metrics statements="409" coveredstatements="390" conditionals="117" coveredconditionals="105" methods="42" coveredmethods="41" elements="568" coveredelements="536" complexity="0" loc="409" ncloc="409" packages="6" files="18" classes="18"/>
     <package name="server">
       <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
       <file name="app.js" path="C:\Users\theol\OneDrive\Documents\Hacktiv8\phase2\IP-HCK84\server\app.js">
@@ -25,7 +25,7 @@
       </file>
     </package>
     <package name="server.controllers">
-      <metrics statements="238" coveredstatements="232" conditionals="90" coveredconditionals="85" methods="20" coveredmethods="20"/>
+      <metrics statements="241" coveredstatements="235" conditionals="90" coveredconditionals="85" methods="20" coveredmethods="20"/>
       <file name="animeController.js" path="C:\Users\theol\OneDrive\Documents\Hacktiv8\phase2\IP-HCK84\server\controllers\animeController.js">
         <metrics statements="127" coveredstatements="122" conditionals="42" coveredconditionals="39" methods="12" coveredmethods="12"/>
         <line num="1" count="3" type="stmt"/>
@@ -217,7 +217,7 @@
         <line num="138" count="3" type="stmt"/>
       </file>
       <file name="userController.js" path="C:\Users\theol\OneDrive\Documents\Hacktiv8\phase2\IP-HCK84\server\controllers\userController.js">
-        <metrics statements="54" coveredstatements="54" conditionals="20" coveredconditionals="19" methods="4" coveredmethods="4"/>
+        <metrics statements="57" coveredstatements="57" conditionals="20" coveredconditionals="19" methods="4" coveredmethods="4"/>
         <line num="1" count="3" type="stmt"/>
         <line num="2" count="3" type="stmt"/>
         <line num="3" count="3" type="stmt"/>
@@ -264,14 +264,17 @@
         <line num="101" count="4" type="stmt"/>
         <line num="107" count="4" type="cond" truecount="2" falsecount="0"/>
         <line num="108" count="3" type="stmt"/>
-        <line num="109" count="3" type="stmt"/>
-        <line num="114" count="8" type="cond" truecount="2" falsecount="0"/>
-        <line num="126" count="3" type="stmt"/>
-        <line num="127" count="3" type="stmt"/>
-        <line num="128" count="3" type="stmt"/>
-        <line num="130" count="3" type="stmt"/>
-        <line num="136" count="4" type="stmt"/>
-        <line num="141" count="3" type="stmt"/>
+        <line num="110" count="3" type="stmt"/>
+        <line num="112" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="117" count="3" type="stmt"/>
+        <line num="118" count="3" type="stmt"/>
+        <line num="120" count="3" type="stmt"/>
+        <line num="133" count="3" type="stmt"/>
+        <line num="134" count="3" type="stmt"/>
+        <line num="135" count="3" type="stmt"/>
+        <line num="137" count="3" type="stmt"/>
+        <line num="143" count="4" type="stmt"/>
+        <line num="148" count="3" type="stmt"/>
       </file>
     </package>
     <package name="server.helpers">

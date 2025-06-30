@@ -419,7 +419,7 @@ describe("User Controllers", () => {
           where: { email: mockPayload.email },
         });
         expect(createdUser).toBeTruthy();
-        expect(createdUser.username).toBe("nguser"); // Based on name transformation
+        expect(createdUser.username).toMatch(/^nguser\d{4}$/); // Based on name transformation
       });
 
       test("Should login existing user with valid Google token", async () => {
@@ -458,7 +458,7 @@ describe("User Controllers", () => {
           .send({ googleToken: "valid-google-token" });
 
         expect(status).toBe(200);
-        expect(body.user).toHaveProperty("username", "jdsmith");
+        expect(body.user.username).toMatch(/^jdsmith\d{4}$/);
       });
     });
 

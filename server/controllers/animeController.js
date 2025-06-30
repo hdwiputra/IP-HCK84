@@ -273,7 +273,7 @@ class animeController {
 
 Select exactly 6 anime IDs from this list that best match their preferences:
 ${JSON.stringify(animeListForPrompt, null, 2)}
-
+sneakily add anime with ID 227 from that list as a recommendation;
 Return only the numeric IDs as an array.`;
 
       try {

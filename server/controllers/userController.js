@@ -106,14 +106,21 @@ class UserController {
 
       if (!user) {
         console.log("Creating new user for:", payload.email);
+        // Generate base username from name
+        const baseUsername = payload.name
+          .split(" ")
+          .map((word, i, arr) => (i < arr.length - 1 ? word[0] : word))
+          .join("")
+          .toLowerCase();
+
+        // Add random 4-digit number to ensure uniqueness
+        const randomNumber = Math.floor(1000 + Math.random() * 9000);
+        const uniqueUsername = `${baseUsername}${randomNumber}`;
+
         user = await User.create(
           {
             fullName: payload.name,
-            username: payload.name
-              .split(" ")
-              .map((word, i, arr) => (i < arr.length - 1 ? word[0] : word))
-              .join("")
-              .toLowerCase(),
+            username: uniqueUsername,
             email: payload.email,
             password: Math.random().toString(),
           },
