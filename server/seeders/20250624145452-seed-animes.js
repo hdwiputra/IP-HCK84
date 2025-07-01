@@ -16,7 +16,10 @@ module.exports = {
       for (let page = 1; page <= 50; page++) {
         console.log(`Fetching page ${page}/50...`);
 
-        const response = await axios.get(url, { timeout: 1000, family: 4 });
+        const response = await axios.get(
+          `https://api.jikan.moe/v4/top/anime?page=${page}`,
+          { timeout: 1000, family: 4 }
+        );
         animelists.push(...response.data.data);
 
         // Delay 1 detik antar request biar ga kena rate limit
