@@ -18,7 +18,7 @@ module.exports = {
 
         const response = await axios.get(
           `https://api.jikan.moe/v4/top/anime?page=${page}`,
-          { timeout: 1000, family: 4 }
+          { family: 4 }
         );
         animelists.push(...response.data.data);
 
