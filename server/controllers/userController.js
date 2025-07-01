@@ -2,6 +2,9 @@ const { comparePass } = require("../helpers/bcrypt");
 const { token } = require("../helpers/jwt");
 const { User } = require("../models");
 const { Op } = require("sequelize");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client();
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 class UserController {
   static async register(req, res, next) {
@@ -33,12 +36,12 @@ class UserController {
       console.log(email, username, password, "<<<< email/username/password");
 
       if (!email && !username) {
-        throw { name: "BadRequest", message: "Email or Username is required" };
+        throw { name: "Bad Request", message: "Email or Username is required" };
       }
       console.log(email, username, password, "<<<< email/username/password");
 
       if (!password) {
-        throw { name: "BadRequest", message: "Password is required" };
+        throw { name: "Bad Request", message: "Password is required" };
       }
       console.log(email, username, password, "<<<< email/username/password");
 
@@ -76,6 +79,66 @@ class UserController {
       data = data.toJSON();
       delete data.password;
       res.status(200).json({ access_token, user: data });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async googleLogin(req, res, next) {
+    try {
+      if (!req.body.googleToken) {
+        throw new Error("No googleToken in request body");
+      }
+
+      const ticket = await client.verifyIdToken({
+        idToken: req.body.googleToken,
+        audience: GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      console.log("Google payload email:", payload.email);
+
+      let user = await User.findOne({
+        where: {
+          email: payload.email,
+        },
+      });
+
+      if (!user) {
+        console.log("Creating new user for:", payload.email);
+        // Generate base username from name
+        const baseUsername = payload.name
+          .split(" ")
+          .map((word, i, arr) => (i < arr.length - 1 ? word[0] : word))
+          .join("")
+          .toLowerCase();
+
+        // Add random 4-digit number to ensure uniqueness
+        const randomNumber = Math.floor(1000 + Math.random() * 9000);
+        const uniqueUsername = `${baseUsername}${randomNumber}`;
+
+        user = await User.create(
+          {
+            fullName: payload.name,
+            username: uniqueUsername,
+            email: payload.email,
+            password: Math.random().toString(),
+          },
+          {
+            hooks: false,
+          }
+        );
+      }
+
+      const access_token = token({ id: user.id });
+      const userData = user.toJSON();
+      delete userData.password;
+
+      res.status(200).json({
+        message: "Login Success",
+        access_token,
+        user: userData,
+      });
     } catch (error) {
       next(error);
     }

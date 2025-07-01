@@ -23,16 +23,29 @@ let genreData = [
     mal_id: 1,
     name: "Action",
     url: "https://myanimelist.net/anime/genre/1/Action",
+    icon: "⚔️",
+    description: "Anime dengan adegan pertarungan dan aksi cepat.",
   },
   {
     mal_id: 2,
     name: "Adventure",
     url: "https://myanimelist.net/anime/genre/2/Adventure",
+    icon: "🧭",
+    description: "Anime dengan eksplorasi dunia luas dan perjalanan.",
   },
   {
     mal_id: 4,
     name: "Comedy",
     url: "https://myanimelist.net/anime/genre/4/Comedy",
+    icon: "😂",
+    description: "Anime dengan humor dan situasi lucu.",
+  },
+  {
+    mal_id: 5,
+    name: "Romance",
+    url: "https://myanimelist.net/anime/genre/5/Romance",
+    icon: "💘",
+    description: "Anime yang berfokus pada kisah cinta dan hubungan.",
   },
 ];
 
@@ -79,6 +92,28 @@ let animeData = [
     rank: 200,
     popularity: 250,
     year: 2023,
+    season: "Fall",
+  },
+  {
+    mal_id: 3,
+    url: "https://myanimelist.net/anime/3",
+    title: "Dummy Anime 3",
+    title_english: "Dummy Anime 3 EN",
+    title_japanese: "ダミーアニメ 3",
+    image_url: "http://example.com/image3.jpg",
+    trailer_url: "http://example.com/trailer3.mp4",
+    genre: ["Fantasy"],
+    synopsis: "Dummy synopsis",
+    type: "Movie",
+    episodes: 1,
+    status: "Finished Airing",
+    source: "Original",
+    duration: "90 min",
+    rating: "R",
+    score: 7.5,
+    rank: 300,
+    popularity: 180,
+    year: 2022,
     season: "Fall",
   },
   // Adding more animes for recommendation testing
@@ -237,6 +272,16 @@ describe("Anime Controllers", () => {
     });
 
     describe("Failed", () => {
+      test("Should return 400 when anime already in user's list", async () => {
+        // Try to add the same anime again
+        const { status, body } = await request(app)
+          .post(`/animes/${createdAnimes[0].id}`)
+          .set("Authorization", `Bearer ${authToken}`);
+
+        expect(status).toBe(400);
+        expect(body).toHaveProperty("message", "Anime already in your list");
+      });
+
       test("Should return 404 when anime doesn't exist", async () => {
         const { status, body } = await request(app)
           .post("/animes/999")
@@ -323,6 +368,65 @@ describe("Anime Controllers", () => {
     describe("Failed", () => {
       test("Should return 401 when no token provided", async () => {
         const { status, body } = await request(app).get("/animes");
+
+        expect(status).toBe(401);
+        expect(body).toHaveProperty("message", "Invalid token");
+      });
+    });
+  });
+
+  describe("GET /animes/:id", () => {
+    let userAnimeId;
+
+    beforeAll(async () => {
+      const userAnime = await UserAnime.findOne({
+        where: {
+          UserId: createdUser.id,
+          AnimeId: createdAnimes[0].id,
+        },
+      });
+      userAnimeId = userAnime.id;
+    });
+
+    describe("Success", () => {
+      test("Should return a specific anime from user's list", async () => {
+        const { status, body } = await request(app)
+          .get(`/animes/${userAnimeId}`)
+          .set("Authorization", `Bearer ${authToken}`);
+
+        expect(status).toBe(200);
+        expect(body).toHaveProperty("id", userAnimeId);
+        expect(body).toHaveProperty("UserId", createdUser.id);
+        expect(body).toHaveProperty("Anime");
+        expect(body.Anime).toHaveProperty("title");
+        expect(body).not.toHaveProperty("createdAt");
+        expect(body).not.toHaveProperty("updatedAt");
+      });
+    });
+
+    describe("Failed", () => {
+      test("Should return 404 when anime not found in user's list", async () => {
+        const { status, body } = await request(app)
+          .get("/animes/999")
+          .set("Authorization", `Bearer ${authToken}`);
+
+        expect(status).toBe(404);
+        expect(body).toHaveProperty("message", "Anime not found");
+      });
+
+      test("Should return 403 when trying to access another user's anime", async () => {
+        const { status, body } = await request(app)
+          .get(`/animes/${userAnimeId}`)
+          .set("Authorization", `Bearer ${authToken2}`);
+
+        expect(status).toBe(403);
+        expect(body).toHaveProperty("message", "You are not authorized");
+      });
+
+      test("Should return 401 when no token provided", async () => {
+        const { status, body } = await request(app).get(
+          `/animes/${userAnimeId}`
+        );
 
         expect(status).toBe(401);
         expect(body).toHaveProperty("message", "Invalid token");
@@ -506,16 +610,67 @@ describe("Anime Controllers", () => {
     });
   });
 
+  describe("GET /animes/genres", () => {
+    beforeAll(async () => {
+      // Clean up user genres
+      await queryInterface.bulkDelete("UserGenres", null, {
+        where: { UserId: createdUser.id },
+      });
+
+      // Add some genres for user
+      await UserGenre.create({
+        UserId: createdUser.id,
+        GenreId: createdGenres[0].id,
+      });
+      await UserGenre.create({
+        UserId: createdUser.id,
+        GenreId: createdGenres[1].id,
+      });
+    });
+
+    describe("Success", () => {
+      test("Should return user's favorite genres", async () => {
+        const { status, body } = await request(app)
+          .get("/animes/genres")
+          .set("Authorization", `Bearer ${authToken}`);
+
+        expect(status).toBe(200);
+        expect(Array.isArray(body)).toBe(true);
+        expect(body.length).toBe(2);
+        expect(body[0]).toHaveProperty("Genre");
+        expect(body[0].Genre).toHaveProperty("name");
+      });
+    });
+
+    describe("Failed", () => {
+      test("Should return 404 when user has no favorite genres", async () => {
+        const { status, body } = await request(app)
+          .get("/animes/genres")
+          .set("Authorization", `Bearer ${authToken2}`);
+
+        expect(status).toBe(404);
+        expect(body).toHaveProperty("message", "Genres not found");
+      });
+
+      test("Should return 401 when no token provided", async () => {
+        const { status, body } = await request(app).get("/animes/genres");
+
+        expect(status).toBe(401);
+        expect(body).toHaveProperty("message", "Invalid token");
+      });
+    });
+  });
+
   describe("POST /animes/genres/:id", () => {
     describe("Success", () => {
       test("Should add genre to user's favorites", async () => {
         const { status, body } = await request(app)
-          .post(`/animes/genres/${createdGenres[0].id}`)
-          .set("Authorization", `Bearer ${authToken}`);
+          .post(`/animes/genres/${createdGenres[2].id}`)
+          .set("Authorization", `Bearer ${authToken2}`);
 
         expect(status).toBe(201);
-        expect(body).toHaveProperty("UserId", createdUser.id);
-        expect(body).toHaveProperty("GenreId", createdGenres[0].id);
+        expect(body).toHaveProperty("UserId", createdUser2.id);
+        expect(body).toHaveProperty("GenreId", createdGenres[2].id);
         expect(body).not.toHaveProperty("createdAt");
         expect(body).not.toHaveProperty("updatedAt");
       });
@@ -533,9 +688,63 @@ describe("Anime Controllers", () => {
     });
   });
 
+  describe("DELETE /animes/genres/:id", () => {
+    beforeAll(async () => {
+      // Ensure user has a genre to delete
+      await UserGenre.create({
+        UserId: createdUser.id,
+        GenreId: createdGenres[2].id,
+      });
+    });
+
+    describe("Success", () => {
+      test("Should remove genre from user's favorites", async () => {
+        const { status, body } = await request(app)
+          .delete(`/animes/genres/${createdGenres[2].id}`)
+          .set("Authorization", `Bearer ${authToken}`);
+
+        expect(status).toBe(200);
+        expect(body).toHaveProperty("message", "Genres deleted from favorite");
+
+        // Verify deletion
+        const deleted = await UserGenre.findOne({
+          where: {
+            UserId: createdUser.id,
+            GenreId: createdGenres[2].id,
+          },
+        });
+        expect(deleted).toBeNull();
+      });
+    });
+
+    describe("Failed", () => {
+      test("Should return 404 when genre not in user's favorites", async () => {
+        const { status, body } = await request(app)
+          .delete(`/animes/genres/${createdGenres[2].id}`)
+          .set("Authorization", `Bearer ${authToken}`);
+
+        expect(status).toBe(404);
+        expect(body).toHaveProperty("message", "Genres not found");
+      });
+
+      test("Should return 401 when no token provided", async () => {
+        const { status, body } = await request(app).delete(
+          `/animes/genres/${createdGenres[0].id}`
+        );
+
+        expect(status).toBe(401);
+        expect(body).toHaveProperty("message", "Invalid token");
+      });
+    });
+  });
+
   describe("GET /animes/recommendation", () => {
     beforeAll(async () => {
-      // Add favorite genres for user
+      // Clear and add favorite genres for user
+      await queryInterface.bulkDelete("UserGenres", null, {
+        where: { UserId: createdUser.id },
+      });
+
       await UserGenre.create({
         UserId: createdUser.id,
         GenreId: createdGenres[0].id, // Action
@@ -549,7 +758,7 @@ describe("Anime Controllers", () => {
     describe("Success", () => {
       test("Should return anime recommendations based on user genres", async () => {
         // Mock Gemini response
-        generateContent.mockResolvedValueOnce("[30, 31, 222, 1, 2]");
+        generateContent.mockResolvedValueOnce("[1, 2, 3, 4, 5]");
 
         const { status, body } = await request(app)
           .get("/animes/recommendation")
@@ -558,44 +767,39 @@ describe("Anime Controllers", () => {
         expect(status).toBe(200);
         expect(body).toHaveProperty("recommendations");
         expect(body).toHaveProperty("basedOnGenres");
-        expect(body).toHaveProperty("count");
+        expect(body).toHaveProperty("method", "gemini");
         expect(Array.isArray(body.recommendations)).toBe(true);
-        expect(body.recommendations.length).toBeLessThanOrEqual(5);
         expect(body.basedOnGenres).toContain("Action");
         expect(body.basedOnGenres).toContain("Comedy");
       });
 
-      test("Should handle Gemini response with text around JSON", async () => {
-        // Mock Gemini response with extra text
-        generateContent.mockResolvedValueOnce(
-          "Here are the recommendations: [30, 31, 222] based on your preferences"
-        );
+      test("Should return fallback recommendations when Gemini fails", async () => {
+        // Mock Gemini to throw error
+        generateContent.mockRejectedValueOnce(new Error("Gemini error"));
 
         const { status, body } = await request(app)
           .get("/animes/recommendation")
           .set("Authorization", `Bearer ${authToken}`);
 
         expect(status).toBe(200);
-        expect(body.recommendations.length).toBeLessThanOrEqual(5);
+        expect(body).toHaveProperty("recommendations");
+        expect(body).toHaveProperty("method", "fallback-random");
+        expect(body.recommendations.length).toBe(6);
       });
 
-      test("Should handle Gemini response with numbers in text format", async () => {
-        // Mock Gemini response with numbers in text
-        generateContent.mockResolvedValueOnce(
-          "The recommendations are: 30, 31, 222, 1, 2"
-        );
+      test("Should handle invalid Gemini response format", async () => {
+        // Mock invalid response
+        generateContent.mockResolvedValueOnce("not a valid JSON");
 
         const { status, body } = await request(app)
           .get("/animes/recommendation")
           .set("Authorization", `Bearer ${authToken}`);
 
         expect(status).toBe(200);
-        expect(body.recommendations.length).toBeLessThanOrEqual(5);
+        expect(body).toHaveProperty("method", "fallback-random");
       });
-    });
 
-    describe("Failed", () => {
-      test("Should return 400 when user has no favorite genres", async () => {
+      test("Should return 400 without favorite genres", async () => {
         const { status, body } = await request(app)
           .get("/animes/recommendation")
           .set("Authorization", `Bearer ${authToken2}`);
@@ -603,36 +807,19 @@ describe("Anime Controllers", () => {
         expect(status).toBe(400);
         expect(body).toHaveProperty(
           "message",
-          "User has no favorite genres set"
+          "Please add some favorite genres first"
         );
       });
+    });
 
-      test("Should handle Gemini API errors", async () => {
-        // Mock Gemini error
-        generateContent.mockRejectedValueOnce(new Error("Gemini API Error"));
-
-        const { status, body } = await request(app)
-          .get("/animes/recommendation")
-          .set("Authorization", `Bearer ${authToken}`);
-
-        expect(status).toBe(500);
-        expect(body).toHaveProperty("message");
-      });
-
-      test("Should handle invalid Gemini response", async () => {
-        // Mock invalid response that will cause an error in parsing
-        generateContent.mockResolvedValueOnce(
-          "invalid response with no numbers"
+    describe("Failed", () => {
+      test("Should return 401 when no token provided", async () => {
+        const { status, body } = await request(app).get(
+          "/animes/recommendation"
         );
 
-        const { status, body } = await request(app)
-          .get("/animes/recommendation")
-          .set("Authorization", `Bearer ${authToken}`);
-        console.log(body, "<<<< body in invalid response test");
-
-        // Controller throws error when it can't parse any valid anime IDs
-        expect(status).toBe(500);
-        expect(body).toHaveProperty("message");
+        expect(status).toBe(401);
+        expect(body).toHaveProperty("message", "Invalid token");
       });
     });
   });

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import "./ElegantAnimeCarousel.css";
-import { Link } from "react-router";
+import styles from "./css_modules/ElegantAnimeCarousel.module.css";
 
 const ElegantAnimeCarousel = ({
   animeData = [],
@@ -11,10 +10,11 @@ const ElegantAnimeCarousel = ({
   const [currentPage, setCurrentPage] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(6);
 
+  console.log(animeData, "<<< animeDataCarousel");
+
   // Calculate total pages
   const totalPages = Math.ceil(animeData.length / cardsPerView);
 
-  // Helper function to get year from aired_from if year is null
   const getDisplayYear = (anime) => {
     if (anime.year) return anime.year;
     if (anime.original?.aired_from) {
@@ -26,17 +26,42 @@ const ElegantAnimeCarousel = ({
     return "Unknown";
   };
 
-  useEffect(() => {
-    const updateCardsPerView = () => {
-      if (window.innerWidth < 850) {
-        setCardsPerView(2);
-      } else if (window.innerWidth < 1475) {
-        setCardsPerView(4);
-      } else {
-        setCardsPerView(6);
-      }
-    };
+  const updateCardsPerView = () => {
+    if (window.innerWidth < 850) {
+      setCardsPerView(2);
+    } else if (window.innerWidth < 1475) {
+      setCardsPerView(4);
+    } else {
+      setCardsPerView(6);
+    }
+  };
 
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const handleCardClick = (animeId, e) => {
+    e.preventDefault();
+
+    // Open MAL page in new tab
+    if (animeId) {
+      window.open(`https://myanimelist.net/anime/${animeId}`, "_blank");
+    } else {
+      console.log("No MAL ID available");
+    }
+  };
+
+  const getCurrentPageCards = () => {
+    const startIndex = currentPage * cardsPerView;
+    const endIndex = startIndex + cardsPerView;
+    return animeData.slice(startIndex, endIndex);
+  };
+
+  useEffect(() => {
     updateCardsPerView();
     window.addEventListener("resize", updateCardsPerView);
     return () => window.removeEventListener("resize", updateCardsPerView);
@@ -49,37 +74,25 @@ const ElegantAnimeCarousel = ({
     }
   }, [currentPage, totalPages]);
 
-  const nextPage = () => {
-    setCurrentPage((prev) => (prev + 1) % totalPages);
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-  };
-
-  const handleAddToWatchlist = (anime, e) => {
-    e.stopPropagation();
-    console.log("Added to watchlist:", anime.title);
-    // Add subtle feedback here
-  };
-
-  // Get current page cards
-  const getCurrentPageCards = () => {
-    const startIndex = currentPage * cardsPerView;
-    const endIndex = startIndex + cardsPerView;
-    return animeData.slice(startIndex, endIndex);
-  };
+  // Reset currentPage when animeData changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [animeData]);
 
   return (
-    <div className="elegant-anime-carousel">
+    <div className={styles.elegantAnimeCarousel}>
       <div className="container">
-        <h2 className="carousel-title">{title}</h2>
+        <h2 className={styles.carouselTitle}>{title}</h2>
 
-        <div className="carousel-wrapper">
+        <div className={styles.carouselWrapper}>
           {/* Navigation Arrows */}
           {totalPages > 1 && (
             <>
-              <button className="nav-arrow prev-arrow" onClick={prevPage}>
+              <button
+                className={`${styles.navArrow} ${styles.prevArrow}`}
+                onClick={prevPage}
+                aria-label="Previous page"
+              >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M15 18L9 12L15 6"
@@ -90,7 +103,11 @@ const ElegantAnimeCarousel = ({
                 </svg>
               </button>
 
-              <button className="nav-arrow next-arrow" onClick={nextPage}>
+              <button
+                className={`${styles.navArrow} ${styles.nextArrow}`}
+                onClick={nextPage}
+                aria-label="Next page"
+              >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M9 18L15 12L9 6"
@@ -104,78 +121,73 @@ const ElegantAnimeCarousel = ({
           )}
 
           {/* Cards Container */}
-          <div className="cards-container">
-            {getCurrentPageCards().map((anime, index) => (
-              <div key={index} className="elegant-card">
-                <div className="card-image-wrapper">
-                  <img
-                    src={
-                      anime.image_url || "/placeholder.svg?height=400&width=280"
-                    }
-                    alt={anime.title}
-                    className="card-poster"
-                    onError={(e) => {
-                      e.target.src = "/placeholder.svg?height=400&width=280";
-                    }}
-                  />
+          <div className={styles.cardsContainer} key={currentPage}>
+            {getCurrentPageCards().map((anime, index) => {
+              // Create a unique key that combines page and anime data
+              const uniqueKey = `${currentPage}-${
+                anime.id || anime.mal_id || index
+              }-${anime.title}`;
 
-                  {/* Score Badge */}
-                  {anime.score && (
-                    <div className="score-badge">
-                      <span className="star">⭐</span>
-                      <span className="rating">{anime.score}</span>
-                    </div>
-                  )}
+              return (
+                <div
+                  key={uniqueKey}
+                  className={styles.elegantCard}
+                  onClick={(e) => handleCardClick(anime.id || anime.mal_id, e)}
+                >
+                  <div className={styles.cardImageWrapper}>
+                    <img
+                      src={
+                        anime.image_url ||
+                        anime.images?.jpg?.image_url ||
+                        "/placeholder.svg?height=400&width=280"
+                      }
+                      alt={anime.title}
+                      className={styles.cardPoster}
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg?height=400&width=280";
+                      }}
+                    />
 
-                  {/* Hover Overlay */}
-                  <div className="hover-overlay">
-                    <button
-                      className="watchlist-button"
-                      onClick={(e) => handleAddToWatchlist(anime, e)}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="none"
-                        />
-                      </svg>
-                      Add to Watchlist
-                    </button>
-                  </div>
-                </div>
-
-                {/* Card Info */}
-                <div className="card-info">
-                  <h3 className="card-title">{anime.title}</h3>
-                  <div className="card-meta">
-                    <span className="year">{getDisplayYear(anime)}</span>
-                    {anime.episodes && (
-                      <span className="episodes">
-                        {anime.episodes} episodes
-                      </span>
+                    {/* Score Badge */}
+                    {anime.score && (
+                      <div className={styles.scoreBadge}>
+                        <span className={styles.star}>⭐</span>
+                        <span className={styles.rating}>{anime.score}</span>
+                      </div>
                     )}
                   </div>
+
+                  {/* Card Info */}
+                  <div className={styles.cardInfo}>
+                    <h3 className={styles.cardTitle}>{anime.title}</h3>
+                    <div className={styles.cardMeta}>
+                      <span className={styles.year}>
+                        {getDisplayYear(anime)}
+                      </span>
+                      {anime.episodes && (
+                        <span className={styles.episodes}>
+                          {anime.episodes} episodes
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Simple Page Indicators */}
+        {/* Page Indicators */}
         {totalPages > 1 && (
-          <div className="page-indicators">
+          <div className={styles.pageIndicators}>
             {Array.from({ length: totalPages }).map((_, index) => (
               <button
                 key={index}
-                className={`page-dot ${index === currentPage ? "active" : ""}`}
+                className={`${styles.pageDot} ${
+                  index === currentPage ? styles.active : ""
+                }`}
                 onClick={() => setCurrentPage(index)}
+                aria-label={`Go to page ${index + 1}`}
               />
             ))}
           </div>

@@ -1,111 +1,129 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import "./AnimeWatchlistCMS.css";
-import Swal from "sweetalert2";
-import axios from "axios";
 import { useNavigate } from "react-router";
+import http from "../lib/http";
+import Swal from "sweetalert2";
+import styles from "./css_modules/AnimeWatchlistCMS.module.css";
 
 const AnimeWatchlistCMS = () => {
   const [animeList, setAnimeList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("access_token");
   const navigate = useNavigate();
 
-  if (token) {
-    const fetchMyAnime = async () => {
-      const token = localStorage.getItem("access_token");
-      try {
-        const response = await axios({
-          method: "GET",
-          url: "http://localhost:3000/animes/",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response, "<<=== getMyAnime");
-        setAnimeList(response.data);
-      } catch (error) {
-        let message = "Something went wrong";
-        if (error && error.response && error.response) {
-          error = error.response.data.message;
-          Swal.fire({
-            icon: "error",
-            title: "error",
-            text: message,
-          });
-        }
-      }
-    };
+  const fetchMyAnime = async () => {
+    try {
+      setLoading(true);
+      const response = await http.get("/animes/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data, "<<< fetchMyAnime");
+      setAnimeList(response.data);
+    } catch (error) {
+      console.error("Error fetching anime:", error);
 
-    useEffect(() => {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (animeId) => {
+    try {
+      const response = await http.delete(`/animes/${animeId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data, "<<< handleDelete");
+
+      Swal.fire({
+        title: "Success",
+        text: "Anime successfully dropped!",
+        icon: "success",
+      });
+
       fetchMyAnime();
-    }, []);
+    } catch (error) {
+      console.error("Error deleting anime:", error);
 
-    const handleDelete = async (animeId) => {
-      try {
-        const response = await axios({
-          method: "DELETE",
-          url: `http://localhost:3000/animes/${animeId}`,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response, "<<===deleteMyAnime");
-        Swal.fire({
-          title: "success",
-          text: "Anime successfully dropped!",
-          icon: "success",
-        });
-        fetchMyAnime();
-      } catch (error) {
-        let message = "Something went wrong!";
-        if (error && error.response && error.response.data) {
-          message = error.response.data.message;
-        }
-        console.log(error);
-        Swal.fire({
-          title: "error",
-          text: message,
-          icon: "error",
-        });
-      }
-    };
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.message || "Something went wrong!",
+        icon: "error",
+      });
+    }
+  };
 
-    const getStatusBadge = (status) => {
-      const statusClasses = {
-        Completed: "status-completed",
-        "In Progress": "status-on-hold",
-      };
-
-      return (
-        <span className={`status-badge ${statusClasses[status] || ""}`}>
-          {status}
-        </span>
-      );
-    };
-
-    const getScoreDisplay = (score) => {
-      if (score === null) return <span className="no-score">—</span>;
-      return (
-        <div className="score-display">
-          <span className="star">⭐</span>
-          <span className="score-value">{score}</span>
-        </div>
-      );
+  const getStatusBadge = (status) => {
+    const statusClasses = {
+      Watching: styles.statusWatching,
+      Completed: styles.statusCompleted,
+      "In Progress": styles.statusOnHold,
+      "Plan to Watch": styles.statusPlanToWatch,
+      Dropped: styles.statusDropped,
     };
 
     return (
-      <div className="anime-cms">
-        <div className="container">
-          <div className="cms-header">
-            <h1 className="cms-title">My Anime Watchlist</h1>
-            <p className="cms-subtitle">
-              Manage your anime tracking and progress
-            </p>
-          </div>
+      <span className={`${styles.statusBadge} ${statusClasses[status] || ""}`}>
+        {status}
+      </span>
+    );
+  };
 
-          <div className="table-container">
-            <table className="anime-table">
+  const getScoreDisplay = (score) => {
+    if (score === null) return <span className={styles.noScore}>—</span>;
+    return (
+      <div className={styles.scoreDisplay}>
+        <span className={styles.star}>⭐</span>
+        <span className={styles.scoreValue}>{score}</span>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    fetchMyAnime();
+  }, [token, navigate]);
+
+  if (loading) {
+    return (
+      <div className={styles.animeCms}>
+        <div className="container">
+          <div className={styles.cmsHeader}>
+            <h1 className={styles.cmsTitle}>My Anime Watchlist</h1>
+            <p className={styles.cmsSubtitle}>Loading your anime...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.animeCms}>
+      <div className="container">
+        <div className={styles.cmsHeader}>
+          <h1 className={styles.cmsTitle}>My Anime Watchlist</h1>
+          <p className={styles.cmsSubtitle}>
+            Manage your anime tracking and progress
+          </p>
+        </div>
+
+        {animeList.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📺</div>
+            <h3>No anime in your watchlist</h3>
+            <p>Start adding anime to track your progress!</p>
+          </div>
+        ) : (
+          <div className={styles.tableContainer}>
+            <table className={styles.animeTable}>
               <thead>
                 <tr>
                   <th>No.</th>
@@ -119,38 +137,36 @@ const AnimeWatchlistCMS = () => {
               </thead>
               <tbody>
                 {animeList.map((anime, index) => (
-                  <tr key={anime.id} className="anime-row">
-                    <td className="anime-number">{index + 1}</td>
-                    <td className="anime-name">
-                      <div className="name-cell">
+                  <tr key={anime.id} className={styles.animeRow}>
+                    <td className={styles.animeNumber}>{index + 1}</td>
+                    <td>
+                      <div className={styles.nameCell}>
                         <img
                           src={anime.Anime.image_url || "/placeholder.svg"}
                           alt={anime.Anime.title}
-                          className="anime-thumbnail"
+                          className={styles.animeThumbnail}
                         />
-                        <span className="name-text">{anime.Anime.title}</span>
+                        <span className={styles.nameText}>
+                          {anime.Anime.title}
+                        </span>
                       </div>
                     </td>
-                    <td className="anime-status">
-                      {getStatusBadge(anime.watch_status)}
-                    </td>
-                    <td className="anime-score">
-                      {getScoreDisplay(anime.score)}
-                    </td>
-                    <td className="anime-episodes">
-                      <span className="episode-progress">
+                    <td>{getStatusBadge(anime.watch_status)}</td>
+                    <td>{getScoreDisplay(anime.score)}</td>
+                    <td>
+                      <span className={styles.episodeProgress}>
                         {anime.episodes_watched} / {anime.Anime.episodes}
                       </span>
                     </td>
-                    <td className="anime-notes">
-                      <div className="notes-cell">
-                        <span className="notes-text">{anime.notes}</span>
+                    <td>
+                      <div className={styles.notesCell}>
+                        <span className={styles.notesText}>{anime.notes}</span>
                       </div>
                     </td>
-                    <td className="anime-actions">
-                      <div className="action-buttons">
+                    <td>
+                      <div className={styles.actionButtons}>
                         <button
-                          className="action-btn details-btn"
+                          className={`${styles.actionBtn} ${styles.detailsBtn}`}
                           onClick={() => navigate(`/animes/${anime.AnimeId}`)}
                           title="View Details"
                         >
@@ -176,7 +192,7 @@ const AnimeWatchlistCMS = () => {
                           Details
                         </button>
                         <button
-                          className="action-btn edit-btn"
+                          className={`${styles.actionBtn} ${styles.editBtn}`}
                           onClick={() => navigate(`/my-animes/${anime.id}`)}
                           title="Edit"
                         >
@@ -200,7 +216,7 @@ const AnimeWatchlistCMS = () => {
                           Edit
                         </button>
                         <button
-                          className="action-btn delete-btn"
+                          className={`${styles.actionBtn} ${styles.deleteBtn}`}
                           onClick={() => handleDelete(anime.id)}
                           title="Delete"
                         >
@@ -230,18 +246,10 @@ const AnimeWatchlistCMS = () => {
               </tbody>
             </table>
           </div>
-
-          {animeList.length === 0 && (
-            <div className="empty-state">
-              <div className="empty-icon">📺</div>
-              <h3>No anime in your watchlist</h3>
-              <p>Start adding anime to track your progress!</p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default AnimeWatchlistCMS;

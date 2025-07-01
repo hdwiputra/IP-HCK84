@@ -6,6 +6,7 @@ const routeAnime = require("./anime");
 
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
+router.post("/login/google", UserController.googleLogin);
 
 router.use("/pub", routePub);
 router.use("/animes", routeAnime);

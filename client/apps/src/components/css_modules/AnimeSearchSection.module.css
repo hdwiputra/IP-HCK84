@@ -1,0 +1,437 @@
+.animeSearchSection {
+  padding: 60px 0;
+  background: #0b1426;
+  min-height: 100vh;
+}
+
+.sectionTitle {
+  color: #fffafa;
+  font-size: 32px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* Search Controls */
+.searchControls {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.searchForm {
+  margin-bottom: 20px;
+}
+
+.searchInputGroup {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fffafa;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  border-color: #ff6b9d;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.searchInput::placeholder {
+  color: rgba(248, 248, 255, 0.6);
+}
+
+.searchButton {
+  padding: 12px 16px;
+  background: #ff6b9d;
+  border: 2px solid #ff6b9d;
+  border-radius: 0 8px 8px 0;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.searchButton:hover {
+  background: #ff5a8a;
+  transform: translateY(-1px);
+}
+
+/* Filter Controls */
+.filterControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+}
+
+.filterSelect {
+  padding: 10px 14px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fffafa;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filterSelect:focus {
+  border-color: #ff6b9d;
+}
+
+.filterSelect option {
+  background: #1a2332;
+  color: #fffafa;
+}
+
+/* Sort Controls */
+.sortControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sortControls label {
+  color: #fffafa;
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.sortButton {
+  padding: 8px 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fffafa;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.sortButton:hover {
+  border-color: #ff6b9d;
+  background: rgba(255, 107, 157, 0.2);
+}
+
+.sortButton.active {
+  background: #ff6b9d;
+  border-color: #ff6b9d;
+  color: white;
+}
+
+.clearFiltersButton {
+  padding: 10px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #fffafa;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clearFiltersButton:hover {
+  border-color: #ff6b9d;
+  color: #ff6b9d;
+}
+
+/* Results Info */
+.resultsInfo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.resultsInfo p {
+  color: rgba(248, 248, 255, 0.8);
+  font-size: 16px;
+}
+
+/* Anime Grid */
+.animeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.animeCardLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.animeCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.animeCard:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cardImage {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+}
+
+.cardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.animeCard:hover .cardImage img {
+  transform: scale(1.05);
+}
+
+.scoreBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fffafa;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+/* Hover Overlay */
+.hoverOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.animeCard:hover .hoverOverlay {
+  opacity: 1;
+}
+
+/* Watchlist Button */
+.watchlistButton {
+  background: rgba(255, 107, 157, 0.9);
+  color: #fffafa;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  transform: translateY(10px);
+}
+
+.animeCard:hover .watchlistButton {
+  transform: translateY(0);
+}
+
+.watchlistButton:hover {
+  background: rgba(255, 107, 157, 1);
+  transform: translateY(-2px);
+}
+
+.watchlistButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cardContent {
+  padding: 16px;
+}
+
+.animeTitle {
+  color: #fffafa;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.animeTitleEnglish {
+  color: rgba(248, 248, 255, 0.7);
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.animeMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.animeMeta span {
+  color: rgba(248, 248, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.animeGenres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.genreTag {
+  background: rgba(255, 107, 157, 0.2);
+  color: #ff6b9d;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* No Results */
+.noResults {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.noResults p {
+  color: rgba(248, 248, 255, 0.7);
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.paginationButton {
+  padding: 12px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fffafa;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  border-color: #ff6b9d;
+  background: rgba(255, 107, 157, 0.2);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationInfo span {
+  color: #fffafa;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .filterControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sortControls {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .animeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .searchControls {
+    padding: 20px;
+  }
+
+  .sectionTitle {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .animeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .searchInputGroup {
+    flex-direction: column;
+  }
+
+  .searchInput {
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+  }
+
+  .searchButton {
+    border-radius: 8px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 15px;
+  }
+}

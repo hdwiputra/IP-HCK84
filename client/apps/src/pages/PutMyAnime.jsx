@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import http from "../lib/http";
 import Swal from "sweetalert2";
-import "./RegistrationPage.css"; // Using the same CSS file
+import styles from "./css_modules/RegistrationPage.module.css";
 
 export default function PutMyAnime() {
   const [score, setScore] = useState("");
@@ -12,55 +12,55 @@ export default function PutMyAnime() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [animeData, setAnimeData] = useState(null);
+
   const navigate = useNavigate();
   const { id } = useParams();
   const token = localStorage.getItem("access_token");
 
-  // Check if user is authenticated
-  useEffect(() => {
-    if (!token) {
-      Swal.fire({
-        title: "Authentication Required",
-        text: "Please login to access this page",
-        icon: "warning",
-      });
-      navigate("/login");
-      return;
+  const createFloatingShapes = () => {
+    const container = document.querySelector(`.${styles.floatingShapes}`);
+    if (container) {
+      container.innerHTML = "";
+      for (let i = 0; i < 20; i++) {
+        const shape = document.createElement("div");
+        shape.className = styles.floatingShape;
+        shape.style.left = Math.random() * 100 + "%";
+        shape.style.animationDelay = Math.random() * 10 + "s";
+        shape.style.animationDuration = 10 + Math.random() * 20 + "s";
+        container.appendChild(shape);
+      }
     }
-  }, [token, navigate]);
+  };
 
-  const fetchMyAnimeId = async (id) => {
+  const fetchMyAnimeId = async () => {
+    if (!id || !token) return;
+
     try {
-      const response = await axios({
-        method: "GET",
-        url: `http://localhost:3000/animes/${id}`,
+      setIsLoading(true);
+      const response = await http.get(`/animes/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       const anime = response.data;
-      setAnimeData(anime);
+      console.log(anime, "<<< fetchMyAnimesId");
 
-      // Populate form with existing data
+      setAnimeData(anime);
       setScore(anime.score || "");
       setEpisodesWatched(anime.episodes_watched || "");
       setNotes(anime.notes || "");
       setWatchStatus(anime.watch_status || "In Progress");
-
-      console.log(response.data, "<<< fetchMyAnimesId");
     } catch (error) {
-      let message = "Something went wrong!";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message;
-      }
-      console.log(error);
+      console.error("Error fetching anime:", error);
 
       Swal.fire({
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong!",
         icon: "error",
       });
+
+      navigate("/my-animes");
     } finally {
       setIsLoading(false);
     }
@@ -81,21 +81,22 @@ export default function PutMyAnime() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios({
-        method: "PUT",
-        url: `http://localhost:3000/animes/${id}`,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: {
+      const response = await http.put(
+        `/animes/${id}`,
+        {
           score: score ? parseInt(score) : null,
           episodes_watched: episodesWatched ? parseInt(episodesWatched) : 0,
           notes: notes,
           watch_status: watchStatus,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      console.log(response, "<<===putMyAnimes");
+      console.log(response.data, "<<< handleSubmit");
 
       Swal.fire({
         title: "Success",
@@ -105,15 +106,11 @@ export default function PutMyAnime() {
 
       navigate("/my-animes");
     } catch (error) {
-      let message = "Something went wrong!";
-      if (error && error.response && error.response.data) {
-        message = error.response.data.message;
-      }
-      console.log(error);
+      console.error("Error updating anime:", error);
 
       Swal.fire({
         title: "Error",
-        text: message,
+        text: error.response?.data?.message || "Something went wrong!",
         icon: "error",
       });
     } finally {
@@ -122,49 +119,34 @@ export default function PutMyAnime() {
   };
 
   useEffect(() => {
-    if (id && token) {
-      fetchMyAnimeId(id);
-    }
+    // Fetch anime data
+    fetchMyAnimeId();
 
     // Add fade-in effect
     const timer = setTimeout(() => {
-      const card = document.querySelector(".registration-card");
-      card?.classList.add("fade-in");
+      const card = document.querySelector(`.${styles.registrationCard}`);
+      card?.classList.add(styles.fadeIn);
     }, 100);
 
     // Create floating shapes
-    const container = document.querySelector(".floating-shapes");
-    if (container) {
-      // Clear existing shapes first
-      container.innerHTML = "";
-      for (let i = 0; i < 20; i++) {
-        const shape = document.createElement("div");
-        shape.className = "floating-shape";
-        shape.style.left = Math.random() * 100 + "%";
-        shape.style.animationDelay = Math.random() * 10 + "s";
-        shape.style.animationDuration = 10 + Math.random() * 20 + "s";
-        container.appendChild(shape);
-      }
-    }
+    createFloatingShapes();
 
     return () => clearTimeout(timer);
-  }, [id, token]);
+  }, [id]); // Remove token from dependencies to fix the loading issue
 
-  // Don't render anything if no token
   if (!token) {
     return null;
   }
 
-  // Loading state
   if (isLoading) {
     return (
-      <div className="registration-page">
-        <div className="background-pattern"></div>
+      <div className={styles.registrationPage}>
+        <div className={styles.backgroundPattern}></div>
         <div className="container">
-          <div className="registration-card">
-            <div className="card-header">
-              <div className="logo-section">
-                <div className="logo-icon">
+          <div className={`${styles.registrationCard} ${styles.fadeIn}`}>
+            <div className={styles.cardHeader}>
+              <div className={styles.logoSection}>
+                <div className={styles.logoIcon}>
                   <svg
                     width="40"
                     height="40"
@@ -177,10 +159,9 @@ export default function PutMyAnime() {
                     />
                   </svg>
                 </div>
-                <h1 className="logo-text">AniTrack+</h1>
+                <h1 className={styles.logoText}>AniTrack+</h1>
               </div>
-              <br />
-              <p className="subtitle">Loading anime data...</p>
+              <p className={styles.subtitle}>Loading anime data...</p>
             </div>
           </div>
         </div>
@@ -189,22 +170,19 @@ export default function PutMyAnime() {
   }
 
   return (
-    <div className="registration-page">
-      <div className="background-pattern"></div>
-      <div className="floating-shapes"></div>
+    <div className={styles.registrationPage}>
+      <div className={styles.backgroundPattern}></div>
+      <div className={styles.floatingShapes}></div>
 
       <div className="container">
-        <div className="registration-card">
-          <Link
-            to={"/my-animes"}
-            className="back-btn"
-            style={{ textDecoration: "none", color: "white" }}
-          >
-            <p>← Back to My List</p>
+        <div className={styles.registrationCard}>
+          <Link to="/my-animes" className={styles.backBtn}>
+            ← Back to My List
           </Link>
-          <div className="card-header">
-            <div className="logo-section">
-              <div className="logo-icon">
+
+          <div className={styles.cardHeader}>
+            <div className={styles.logoSection}>
+              <div className={styles.logoIcon}>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="#ff6b9d">
                   <path
                     d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"
@@ -212,16 +190,14 @@ export default function PutMyAnime() {
                   />
                 </svg>
               </div>
-              <h1 className="logo-text">AniTrack+</h1>
+              <h1 className={styles.logoText}>AniTrack+</h1>
             </div>
-            <br />
-            <br />
-            <p className="subtitle">
+            <p className={styles.subtitle}>
               Update your anime watch list information here!
             </p>
-            {animeData && animeData.Anime && (
+            {animeData?.Anime && (
               <p
-                className="anime-title"
+                className={styles.animeTitle}
                 style={{
                   color: "#ff6b9d",
                   fontWeight: "bold",
@@ -233,11 +209,11 @@ export default function PutMyAnime() {
             )}
           </div>
 
-          <form className="registration-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Watch Status</label>
+          <form className={styles.registrationForm} onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Watch Status</label>
               <select
-                className="form-control"
+                className={styles.formControl}
                 value={watchStatus}
                 onChange={(e) => setWatchStatus(e.target.value)}
                 required
@@ -247,43 +223,42 @@ export default function PutMyAnime() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Anime Score (1-10)</label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Anime Score (1-10)</label>
               <input
                 type="number"
                 min="1"
                 max="10"
-                className="form-control"
+                className={styles.formControl}
                 placeholder="Enter your personal score for this Anime (1-10)"
                 value={score}
                 onChange={(e) => setScore(e.target.value)}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">
-                Episodes Watched (Max: {animeData.Anime.episodes})
-              </label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Episodes Watched</label>
               <input
                 type="number"
                 min="0"
-                className="form-control"
+                max={animeData?.Anime?.episodes || 9999}
+                className={styles.formControl}
                 placeholder="Enter how many episodes you have watched"
                 value={episodesWatched}
                 onChange={(e) => setEpisodesWatched(e.target.value)}
                 required
               />
-              {animeData && animeData.Anime && animeData.Anime.episodes && (
+              {animeData?.Anime?.episodes && (
                 <small style={{ color: "#888", fontSize: "12px" }}>
                   Total episodes: {animeData.Anime.episodes}
                 </small>
               )}
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Notes</label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Notes</label>
               <textarea
-                className="form-control"
+                className={styles.formControl}
                 rows="4"
                 placeholder="What do you want to say about this Anime?"
                 value={notes}
@@ -291,11 +266,10 @@ export default function PutMyAnime() {
                 style={{ resize: "vertical", minHeight: "80px" }}
               />
             </div>
-            <br />
 
             <button
               type="submit"
-              className="create-account-btn"
+              className={styles.createAccountBtn}
               disabled={isSubmitting}
             >
               {isSubmitting ? "Updating..." : "Update Anime"}

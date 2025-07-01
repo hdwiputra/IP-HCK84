@@ -18,8 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       url: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
         validate: {
+          notNull: { msg: "Genre name is required" },
+          notEmpty: { msg: "Genre name cannot be empty" },
           isUrl: { msg: "Genre URL must be a valid URL" },
         },
       },
@@ -29,6 +31,22 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           notNull: { msg: "mal_id is required" },
           isInt: { msg: "mal_id must be an integer" },
+        },
+      },
+      icon: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Icon is required" },
+          notEmpty: { msg: "Icon is required" },
+        },
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Description is required" },
+          notEmpty: { msg: "Description is required" },
         },
       },
     },
