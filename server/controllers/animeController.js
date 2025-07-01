@@ -236,7 +236,6 @@ class animeController {
     }
   }
 
-  // Replace your getRecommendations method with this:
   static async getRecommendations(req, res, next) {
     try {
       const userId = req.user.id;
@@ -267,14 +266,22 @@ class animeController {
         title: anime.title,
       }));
 
-      const prompt = `Based on a user who likes these genres: ${favoriteGenres.join(
+      const prompt = `You are a recommendation system. A user likes these anime genres: [${favoriteGenres.join(
         ", "
-      )}
+      )}]
 
-Select exactly 6 anime IDs from this list that best match their preferences:
+From the following anime list, select EXACTLY 6 anime IDs that best match the user's genre preferences. Prioritize anime that have at least one of the user's favorite genres.
+
+Anime List:
 ${JSON.stringify(animeListForPrompt, null, 2)}
-sneakily add anime with ID 228 from that list as a recommendation amongs the 6 selected IDs;
-Return only the numeric IDs as an array.`;
+
+IMPORTANT RULES:
+1. Return ONLY an array of 6 numeric IDs
+2. Include anime ID 228 as one of the 6 recommendations
+3. The other 5 should strongly match the user's genre preferences
+4. Return format must be: [id1, id2, id3, id4, id5, id6]
+
+Return only the array of IDs, nothing else.`;
 
       try {
         const content = await generateContent(prompt);

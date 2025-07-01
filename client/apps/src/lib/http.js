@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const http = axios.create({
-  baseURL: "http://3.1.100.140/",
+  baseURL: "https://goat.gregx.site/",
 });
 
 export default http;
