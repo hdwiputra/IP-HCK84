@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Add this import
 import http from "../lib/http";
 import Swal from "sweetalert2";
 import HeroSection from "../components/HeroSection";
@@ -12,7 +13,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
-  // const token = localStorage.getItem("access_token");
+  const navigate = useNavigate(); // Add this hook
   const token = localStorage.getItem("access_token");
 
   // Helper function to extract year from aired_from or use existing year
@@ -60,13 +61,23 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching recommendations:", error);
 
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text:
-          error.response?.data?.message ||
-          "Something went wrong loading recommendations",
-      });
+      // Check if the error is about missing favorite genres
+      if (
+        error.response?.status === 400 &&
+        error.response?.data?.message?.includes("favorite genres")
+      ) {
+        // Automatically navigate to genres page
+        navigate("/my-genres");
+      } else {
+        // Handle other errors normally
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text:
+            error.response?.data?.message ||
+            "Something went wrong loading recommendations",
+        });
+      }
     } finally {
       setLoadingRecommendations(false);
     }
@@ -113,15 +124,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchRecommendations();
-  }, [token]);
+    if (token) {
+      fetchRecommendations();
+    }
+  }, []);
 
   return (
     <>
       <HeroSection />
-
-      {/* Recommendations Section */}
-      {/* Recommendations Section */}
       {token && (
         <>
           {loadingRecommendations ? (
@@ -150,14 +160,6 @@ export default function Home() {
           title="Popular Airing Anime"
         />
       )}
-
-      {/* Debug info - you can remove this later */}
-      {/* <div style={{ padding: "2rem", textAlign: "center", color: "#fffafa" }}>
-        <p>Popular anime loaded: {animeData.length}</p>
-        {recommendationData.length > 0 && (
-          <p>Recommendations loaded: {recommendationData.length}</p>
-        )}
-      </div> */}
 
       <AnimeSearchSection />
     </>
