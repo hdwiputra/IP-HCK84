@@ -22,7 +22,7 @@ module.exports = {
         animelists.push(...response.data.data);
 
         // Delay 1 detik antar request biar ga kena rate limit
-        await delay(1000);
+        await delay(10000);
       }
 
       // Map to required fields
