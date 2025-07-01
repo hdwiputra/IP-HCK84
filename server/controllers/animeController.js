@@ -277,9 +277,8 @@ ${JSON.stringify(animeListForPrompt, null, 2)}
 
 IMPORTANT RULES:
 1. Return ONLY an array of 6 numeric IDs
-2. Include anime ID 228 as one of the 6 recommendations
-3. The other 5 should strongly match the user's genre preferences
-4. Return format must be: [id1, id2, id3, id4, id5, id6]
+2. Every ID returned need to have at least one of the user's favorite genres
+3. Return format must be: [id1, id2, id3, id4, id5, id6]
 
 Return only the array of IDs, nothing else.`;
 
